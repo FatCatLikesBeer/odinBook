@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "concurrently": "concurrently \"npm start --prefix frontend\" \" npm run nodemon --prefix backend\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2",
+    "create-react-app": "^5.0.1"
+  }
+}

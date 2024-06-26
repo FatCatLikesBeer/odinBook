@@ -3,23 +3,21 @@ import logo from './logo.svg';
 import './App.css';
 
 function App() {
-  const [result, setResult] = useState('Welcome!');
+  const [result, setResult] = useState("You've said nothing");
 
   const Button = () => {
     const handleClick = async () => {
-      try {
-        const url = 'http://localhost:3000/apiv0';
-        const result = await fetch(url);
-        const data = await result.json();
-        setResult(data.message);
-      } catch (error) {
-        setResult("Something went wrong!");
-        console.error(error);
-      }
+      const element = document.getElementById('field');
+      const url = `http://localhost:3000/apiv0/${element.value}`;
+      element.value = "";
+
+      const response = await fetch(url);
+      const data = await response.json();
+      setResult(data.message);
     }
 
     return (
-      <button id="theButton" onClick={handleClick}>Click me!</button>
+      <button onClick={handleClick}>Click Me!</button>
     )
   }
 
@@ -30,8 +28,9 @@ function App() {
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
-        <Button />
+        <input id='field' />
         {result}
+        <Button />
       </header>
     </div>
   );

@@ -1,6 +1,8 @@
 /node_modules
 /frontend/node_modules
+/vuefrontend/node_modules
 /backend/node_modules
 /.env
+/vuefrontend/.env
 /frontend/.env
 /backend/.env

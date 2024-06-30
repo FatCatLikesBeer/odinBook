@@ -9,9 +9,9 @@ import { body, validationResult } from 'express-validator';
 // Import Types
 import { Request, Response } from 'express';
 import { Secret } from 'jsonwebtoken';
+import { ResponseJSON, FailureResponseJSON } from '../types/types';
 
 // Import Models
-// import { default as UserModel } from '../models/User';
 const UserModel = require('../models/User');
 
 const secret: Secret = process.env.JWT_SECRET as string;
@@ -46,7 +46,7 @@ exports.post = [
   // Check if username already exists
   body('userName')
     .trim()
-    .custom(async value => {
+    .custom(async (value) => {
       const existingUser = await UserModel.findOne({ userName: value }).exec();
       if (existingUser) {
         throw new Error('Signup failed. Please check your details and try again.');
@@ -74,14 +74,17 @@ exports.post = [
     // Errors From Body Parser
     if (!errors.isEmpty()) {
       const errorMessage = errors.array()[0].msg;
-      res.status(400).json({
+      const responseError: ResponseJSON = {
         success: false,
         message: errorMessage,
-      });
+        data: null,
+      };
+      res.status(400).json(responseError);
     } else {
       // No errors in request body
       try {
         bcrypt.hash(password, 12, async (error: String, hashedPassword: String) => {
+
           // Create a new user
           const newUser = new UserModel({
             userName: userName,
@@ -92,13 +95,14 @@ exports.post = [
           // Save user
           await newUser.save();
 
-          // Make a JWT
+          // Make a JWT Payload
           const payload = {
             _id: newUser._id.toString(),
             userName: userName,
             email: email,
           }
 
+          // Create & Send Payload
           jwt.sign(payload, secret, { expiresIn: '600s' }, (err, token) => {
             if (err) {
               res.status(400).json({
@@ -108,23 +112,26 @@ exports.post = [
             } else {
               // Send data back to client
               res.cookie('Barer', token);
-              res.json({
+              const response: ResponseJSON = {
                 success: true,
                 message: "Signup Successful 😃",
-                userData: {
+                data: {
                   userName: payload.userName,
                   email: payload.email,
                   _id: payload._id,
                 },
-              });
+              }
+              res.json(response);
             }
           });
         });
       } catch (err) {
-        res.status(400).json({
+        const responseError: ResponseJSON = {
           success: false,
           message: 'Error signing up',
-        });
+          data: null,
+        }
+        res.status(400).json(responseError);
       }
     }
   })

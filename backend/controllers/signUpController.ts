@@ -2,21 +2,22 @@
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 import { default as asyncHandler } from 'express-async-handler';
-import * as jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
-// import passport from 'passport';
+import * as jwt from 'jsonwebtoken';
 
 // Import Types
 import { Request, Response } from 'express';
 import { Secret } from 'jsonwebtoken';
-import { ResponseJSON, FailureResponseJSON } from '../types/types';
+import { ResponseJSON } from '../types/Responses';
 
 // Import Models
 const UserModel = require('../models/User');
 
 const secret: Secret = process.env.JWT_SECRET as string;
 
-exports.post = [
+export const signUpController: any = {};
+
+signUpController.post = [
   body('userName')
     .trim()
     .isLength({ min: 3 })
@@ -83,7 +84,7 @@ exports.post = [
     } else {
       // No errors in request body
       try {
-        bcrypt.hash(password, 12, async (error: String, hashedPassword: String) => {
+        bcrypt.hash(password, 12, async (_error: String, hashedPassword: String) => {
 
           // Create a new user
           const newUser = new UserModel({

@@ -33,20 +33,20 @@ const UserSchema = new Schema({
 });
 
 // Virtual property for total likes
-PostSchema.virtual('totalPosts').get(function() {
+UserSchema.virtual('totalPosts').get(function() {
   return this.posts.length;
 });
-PostSchema.virtual('totalFollowing').get(function() {
+UserSchema.virtual('totalFollowing').get(function() {
   return this.following.length;
 });
-PostSchema.virtual('totalFollowers').get(function() {
+UserSchema.virtual('totalFollowers').get(function() {
   return this.followers.length;
 });
-PostSchema.virtual('totalBlocked').get(function() {
+UserSchema.virtual('totalBlocked').get(function() {
   return this.blocked.length;
 });
 
-PostSchema.set('toJSON', { virtuals: true });
-PostSchema.set('toObject', { virtuals: true });
+UserSchema.set('toJSON', { virtuals: true });
+UserSchema.set('toObject', { virtuals: true });
 
 module.exports = mongoose.model("User", UserSchema);

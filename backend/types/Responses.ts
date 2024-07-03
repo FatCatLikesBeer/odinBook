@@ -3,8 +3,3 @@ export interface ResponseJSON {
   message: string;
   data: object | null;
 }
-
-export interface FailureResponseJSON {
-  success: boolean;
-  message: string;
-}

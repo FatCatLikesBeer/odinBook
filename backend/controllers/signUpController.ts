@@ -11,7 +11,19 @@ import { Secret } from 'jsonwebtoken';
 import { ResponseJSON } from '../types/Responses';
 
 // Import Models
-const UserModel = require('../models/User');
+import { User } from '../models/User';
+import { Post } from '../models/Post';
+import { Event } from '../models/Event';
+import { Comment } from '../models/Comment';
+import { Like } from '../models/Like';
+
+(async function() {
+  await User.sync({ force: true });
+  await Post.sync({ force: true });
+  await Event.sync({ force: true });
+  await Comment.sync({ force: true });
+  await Like.sync({ force: true });
+})();
 
 const secret: Secret = process.env.JWT_SECRET as string;
 
@@ -48,7 +60,7 @@ signUpController.post = [
   body('userName')
     .trim()
     .custom(async (value) => {
-      const existingUser = await UserModel.findOne({ userName: value }).exec();
+      const existingUser = await User.findOne({ where: { userName: value } });
       if (existingUser) {
         throw new Error('Signup failed. Please check your details and try again.');
       }
@@ -58,7 +70,7 @@ signUpController.post = [
   body('email')
     .trim()
     .custom(async value => {
-      const existingUser = await UserModel.findOne({ email: value }).exec();
+      const existingUser = await User.findOne({ where: { email: value } });
       if (existingUser) {
         throw new Error('Signup failed. Please check your details and try again.');
       }
@@ -87,8 +99,9 @@ signUpController.post = [
         bcrypt.hash(password, 12, async (_error: String, hashedPassword: String) => {
 
           // Create a new user
-          const newUser = new UserModel({
+          const newUser = User.build({
             userName: userName,
+            displayName: userName,
             password: hashedPassword,
             email: email,
           });
@@ -98,7 +111,7 @@ signUpController.post = [
 
           // Make a JWT Payload
           const payload = {
-            _id: newUser._id.toString(),
+            id: newUser.dataValues.id,
             userName: userName,
             email: email,
           }
@@ -119,7 +132,7 @@ signUpController.post = [
                 data: {
                   userName: payload.userName,
                   email: payload.email,
-                  _id: payload._id,
+                  id: payload.id,
                 },
               }
               res.json(response);

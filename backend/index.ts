@@ -15,15 +15,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 const port = 3001;
 
-// Run dev database in dev
-const serverState = process.env.DEV || "prod";
-//// ------ MongoDB Stuff ------ ////
-if (serverState === "dev") {
-  require("./database/development");
-} else {
-  require("./database/production");
-}
-
 // Routes Declaration
 app.use('/apiv0', apiRouter);
 

@@ -12,18 +12,6 @@ import { ResponseJSON } from '../types/Responses';
 
 // Import Models
 import { User } from '../models/User';
-import { Post } from '../models/Post';
-import { Event } from '../models/Event';
-import { Comment } from '../models/Comment';
-import { Like } from '../models/Like';
-
-(async function() {
-  await User.sync({ force: true });
-  await Post.sync({ force: true });
-  await Event.sync({ force: true });
-  await Comment.sync({ force: true });
-  await Like.sync({ force: true });
-})();
 
 const secret: Secret = process.env.JWT_SECRET as string;
 

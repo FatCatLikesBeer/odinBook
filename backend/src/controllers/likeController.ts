@@ -1,16 +1,16 @@
 // Import Modules
 import { Request, Response } from 'express';
-import { ResponseJSON } from '../types/Responses';
+import { ResponseJSON } from '../../types/custom/Responses';
 
 // Import Models?
 
-// Event Controller
-export const eventController: any = {};
-eventController.get = async (req: Request, res: Response) => {
+// Like Controller
+export const likeController: any = {};
+likeController.get = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Events controller: GET not yet implemented",
+      message: "Likes controller: GET not yet implemented",
       data: {}
     }
     res.json(response);
@@ -24,11 +24,11 @@ eventController.get = async (req: Request, res: Response) => {
   }
 }
 
-eventController.post = async (req: Request, res: Response) => {
+likeController.post = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Events controller: POST not yet implemented",
+      message: "Likes controller: POST not yet implemented",
       data: {}
     }
     res.json(response);
@@ -42,11 +42,11 @@ eventController.post = async (req: Request, res: Response) => {
   }
 }
 
-eventController.put = async (req: Request, res: Response) => {
+likeController.put = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Events controller: PUT not yet implemented",
+      message: "Likes controller: PUT not yet implemented",
       data: {}
     }
     res.json(response);
@@ -60,11 +60,11 @@ eventController.put = async (req: Request, res: Response) => {
   }
 }
 
-eventController.delete = async (req: Request, res: Response) => {
+likeController.delete = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Events controller: DELETE not yet implemented",
+      message: "Likes controller: DELETE not yet implemented",
       data: {}
     }
     res.json(response);

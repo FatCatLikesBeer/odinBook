@@ -1,12 +1,13 @@
 const request = require('supertest');
 import express from 'express';
-import { signUpRouter } from '../routes/signupRouter';
-import sequelize from '../models/SequelizeConnection';
+import { signUpRouter } from '../src/routes/signupRouter';
+import { sendPayload } from '../src/middleware/sendPayload';
+import sequelize from '../src/models/SequelizeConnection';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use('/', signUpRouter);
+app.use('/', signUpRouter, sendPayload);
 
 beforeAll(async () => {
   await sequelize.authenticate();
@@ -24,6 +25,7 @@ describe('Successfull Signup', () => {
   it('Sends Unique Signup Info', async () => {
     const loginResponse = await agent
       .post('/')
+      .set('User-Agent', 'JestSupertest/0.0')
       .send({
         userName: `delete_me_${apendage}`,
         password: 'fakePassword',
@@ -34,7 +36,7 @@ describe('Successfull Signup', () => {
 
     cookie = await loginResponse.get('set-cookie')[0];
     expect(cookie).toBeDefined();
-    expect(cookie.split("=")[0]).toMatch('Barer');
+    expect(cookie.split("=")[0]).toMatch('Bearer');
 
     const parsedResult1 = await JSON.parse(loginResponse.text);
     expect(parsedResult1.success).toBeTruthy();
@@ -57,6 +59,7 @@ describe('Bad Signups: preexisting', () => {
       .expect("Content-Type", /json/)
       .expect(400);
 
+    expect(loginResponse.get('set-cookie')).toBeUndefined();
     const parsedResult1 = await JSON.parse(loginResponse.text);
     expect(parsedResult1.success).toBeFalsy();
     expect(parsedResult1.message).toBeDefined();

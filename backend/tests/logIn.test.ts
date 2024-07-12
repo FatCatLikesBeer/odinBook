@@ -1,13 +1,14 @@
 require('dotenv').config();
 const request = require('supertest');
 import express from 'express';
-import { logInRouter } from '../routes/loginRouter';
-import sequelize from '../models/SequelizeConnection';
+import { logInRouter } from '../src/routes/loginRouter';
+import { sendPayload } from '../src/middleware/sendPayload';
+import sequelize from '../src/models/SequelizeConnection';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use('/', logInRouter);
+app.use('/', logInRouter, sendPayload);
 
 beforeAll(async () => {
   await sequelize.authenticate();

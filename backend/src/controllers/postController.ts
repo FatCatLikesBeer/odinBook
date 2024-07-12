@@ -1,16 +1,16 @@
 // Import Modules
 import { Request, Response } from 'express';
-import { ResponseJSON } from '../types/Responses';
+import { ResponseJSON } from '../../types/custom/Responses';
 
 // Import Models?
 
-// Comment Controller
-export const commentController: any = {};
-commentController.get = async (req: Request, res: Response) => {
+// Post Controller
+export const postController: any = {};
+postController.get = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Comments controller: GET not yet implemented",
+      message: "Posts controller: GET not yet implemented",
       data: {}
     }
     res.json(response);
@@ -24,11 +24,11 @@ commentController.get = async (req: Request, res: Response) => {
   }
 }
 
-commentController.post = async (req: Request, res: Response) => {
+postController.post = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Comments controller: POST not yet implemented",
+      message: "Posts controller: POST not yet implemented",
       data: {}
     }
     res.json(response);
@@ -42,11 +42,11 @@ commentController.post = async (req: Request, res: Response) => {
   }
 }
 
-commentController.put = async (req: Request, res: Response) => {
+postController.put = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Comments controller: PUT not yet implemented",
+      message: "Posts controller: PUT not yet implemented",
       data: {}
     }
     res.json(response);
@@ -60,11 +60,11 @@ commentController.put = async (req: Request, res: Response) => {
   }
 }
 
-commentController.delete = async (req: Request, res: Response) => {
+postController.delete = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Comments controller: DELETE not yet implemented",
+      message: "Posts controller: DELETE not yet implemented",
       data: {}
     }
     res.json(response);

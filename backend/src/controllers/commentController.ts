@@ -1,16 +1,16 @@
 // Import Modules
 import { Request, Response } from 'express';
-import { ResponseJSON } from '../types/Responses';
+import { ResponseJSON } from '../../types/custom/Responses';
 
 // Import Models?
 
-// Like Controller
-export const likeController: any = {};
-likeController.get = async (req: Request, res: Response) => {
+// Comment Controller
+export const commentController: any = {};
+commentController.get = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Likes controller: GET not yet implemented",
+      message: "Comments controller: GET not yet implemented",
       data: {}
     }
     res.json(response);
@@ -24,11 +24,11 @@ likeController.get = async (req: Request, res: Response) => {
   }
 }
 
-likeController.post = async (req: Request, res: Response) => {
+commentController.post = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Likes controller: POST not yet implemented",
+      message: "Comments controller: POST not yet implemented",
       data: {}
     }
     res.json(response);
@@ -42,11 +42,11 @@ likeController.post = async (req: Request, res: Response) => {
   }
 }
 
-likeController.put = async (req: Request, res: Response) => {
+commentController.put = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Likes controller: PUT not yet implemented",
+      message: "Comments controller: PUT not yet implemented",
       data: {}
     }
     res.json(response);
@@ -60,11 +60,11 @@ likeController.put = async (req: Request, res: Response) => {
   }
 }
 
-likeController.delete = async (req: Request, res: Response) => {
+commentController.delete = async (req: Request, res: Response) => {
   try {
     const response: ResponseJSON = {
       success: true,
-      message: "Likes controller: DELETE not yet implemented",
+      message: "Comments controller: DELETE not yet implemented",
       data: {}
     }
     res.json(response);

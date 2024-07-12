@@ -6,9 +6,9 @@ import { body, validationResult } from 'express-validator';
 import * as jwt from 'jsonwebtoken';
 
 // Import Types
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { Secret } from 'jsonwebtoken';
-import { ResponseJSON } from '../types/Responses';
+import { ResponseJSON } from '../../types/custom/Responses';
 
 // Import Models
 import { User } from '../models/User';
@@ -64,7 +64,7 @@ signUpController.post = [
       }
     }),
 
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     const [userName, email, password] = [
       req.body.userName,
@@ -72,18 +72,25 @@ signUpController.post = [
       req.body.password,
     ];
 
-    // Errors From Body Parser
+    // Handle errors from body parser
     if (!errors.isEmpty()) {
       const errorMessage = errors.array()[0].msg;
-      const responseError: ResponseJSON = {
+      req.response = {
         success: false,
-        message: errorMessage,
         data: null,
-      };
-      res.status(400).json(responseError);
+        message: errorMessage
+      }
+      req.error = 400;
+      next();
     } else {
       // No errors in request body
       try {
+        // Check user-agent
+        // Throw new error if no user-agent
+        const userAgent = req.headers['user-agent'] ? req.headers['user-agent'] : "unknownBrowser";
+        if (userAgent == "unknownBrowser") {
+          throw new Error("Unknown Browser");
+        }
         bcrypt.hash(password, 12, async (_error: String, hashedPassword: String) => {
 
           // Create a new user
@@ -97,35 +104,25 @@ signUpController.post = [
           // Save user
           await newUser.save();
 
-          // Make a JWT Payload
-          const payload = {
-            id: newUser.dataValues.id,
-            userName: userName,
-            email: email,
+          const response: ResponseJSON = {
+            success: true,
+            message: "Signup Successful 😃",
+            data: {
+              userData: {
+                userName: newUser.dataValues.userName,
+                displayName: newUser.dataValues.userName,
+                email: newUser.dataValues.email,
+                id: newUser.dataValues.id,
+              }
+            }
           }
 
-          // Create & Send Payload
-          jwt.sign(payload, secret, { expiresIn: '600s' }, (err, token) => {
-            if (err) {
-              res.status(400).json({
-                success: false,
-                message: "Error generating token",
-              })
-            } else {
-              // Send data back to client
-              res.cookie('Barer', token);
-              const response: ResponseJSON = {
-                success: true,
-                message: "Signup Successful 😃",
-                data: {
-                  userName: payload.userName,
-                  email: payload.email,
-                  id: payload.id,
-                },
-              }
-              res.json(response);
-            }
-          });
+          req.response = response;
+          req.tokenPayload = {
+            id: newUser.dataValues.id,
+            userAgent
+          }
+          next();
         });
       } catch (err) {
         const responseError: ResponseJSON = {

@@ -1,17 +1,18 @@
 import { Router, Request, Response } from "express";
-import { ResponseJSON } from "../types/Responses";
+import { ResponseJSON } from "../../types/custom/Responses";
 import { signUpRouter } from "./signupRouter";
 import { logInRouter } from "./loginRouter";
 import { postRouter } from "./postRouter";
 import { eventRouter } from "./eventRouter";
 import { commentRouter } from "./commentRouter";
 import { likeRouter } from "./likeRouter";
+import { sendPayload } from '../middleware/sendPayload';
 
 export const apiRouter = Router();
 
 apiRouter.get('/', index);
 apiRouter.use('/signup', signUpRouter);
-apiRouter.use('/login', logInRouter);
+apiRouter.use('/login', logInRouter, sendPayload);
 apiRouter.use('/posts', postRouter);
 apiRouter.use('/events', eventRouter);
 apiRouter.use('/comments', commentRouter);
@@ -21,6 +22,7 @@ apiRouter.get('/query', query);
 apiRouter.get('/:id', echo);
 
 function index(req: Request, res: Response) {
+  req.error = undefined;
   const response: ResponseJSON = {
     success: true,
     message: "You've touched the API!",
@@ -46,7 +48,7 @@ function query(req: Request, res: Response) {
   const response: ResponseJSON = {
     success: true,
     message: "You give you name & age!",
-    data: req.query,
+    data: query,
   }
   res.json(response);
 }

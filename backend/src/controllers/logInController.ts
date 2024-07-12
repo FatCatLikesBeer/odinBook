@@ -2,13 +2,12 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 import { Request, Response, NextFunction } from 'express';
-import { ResponseJSON } from '../types/Responses';
+import { ResponseJSON } from '../../types/custom/Responses';
 import * as jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 
 // Import Models?
 import { User } from '../models/User';
-import { exists } from 'fs';
 
 // logIn Controller
 export const logInController: any = {};
@@ -48,50 +47,55 @@ logInController.post = [
 
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // If errors exist
+      // If errors exist from body validator
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         const errorMessage = errors.array()[0].msg;
         throw new Error(errorMessage);
       }
 
+      // Check for existing user
+      // Throw error if no user found
       const { email, password } = req.body;
       const existingUser = await User.findOne({ where: { email } });
       if (!existingUser) {
         throw new Error('Email or password is incorrect');
       }
 
+      // Compare user password w/provided password
+      // Throw error if passwords don't match
       const match = await bcrypt.compare(password, existingUser.dataValues.password);
       if (!match) {
         throw new Error('Email or password is incorrect');
       }
 
-      const userAgent = req.headers['user-agent'];
+      // Check user-agent: used in token
+      // Throw new error if no user-agent
+      const userAgent = req.headers['user-agent'] ? req.headers['user-agent'] : "unknownBrowser";
+      if (userAgent == "unknownBrowser") {
+        throw new Error("Unknown Browser");
+      }
+
+      // Construct success response
       const id: string = existingUser.dataValues.id;
       const payload = { userAgent, id };
 
       const response: ResponseJSON = {
         success: true,
         message: "Login Successful",
-        data: {}
       }
 
-      jwt.sign(payload, jwtSecret, { expiresIn: '600s' }, (err, token) => {
-        if (err) {
-          throw new Error(String(err));
-        }
-
-        console.log(token);
-        res.cookie("Bearer", token).json(response);
-        next();
-      });
+      req.tokenPayload = payload
+      req.response = response
+      next();
     } catch (error) {
-      const failureResponse: ResponseJSON = {
+      req.error = 400;
+      req.response = {
         success: false,
         message: String(error),
         data: null,
       }
-      res.status(400).json(failureResponse);
+      next();
     }
   },
 ];

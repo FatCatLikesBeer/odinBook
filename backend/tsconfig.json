@@ -6,8 +6,10 @@
     "rootDir": "./",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types", "./types/**/*"],
   },
-  "include": ["*"],
-  "exclude": ["node_modules"]
+  "files": ["./types/express/index.d.ts"],
+  "include": ["src", "types"],
+  "exclude": ["node_modules", "./dist", "./curlTests/"]
 }

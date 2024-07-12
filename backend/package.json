@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "ts-node ./src/index.ts",
     "dev:": "ts-node --watch ./index.ts",
-    "nodemon": "nodemon ./index.ts",
+    "nodemon": "nodemon ./src/index.ts",
     "test": "jest"
   },
   "keywords": [],

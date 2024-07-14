@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import sequelize from './SequelizeConnection';
 
 // Model Definition
-const PostComment = sequelize.define("PostComment", {
+const Rsvp = sequelize.define("Rsvp", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -16,18 +16,21 @@ const PostComment = sequelize.define("PostComment", {
       key: "id"
     }
   },
-  parentId: {
+  parent: {
     type: DataTypes.INTEGER,
+    allowNull: false,
     references: {
-      model: "Posts",
+      model: "Events",
       key: "id"
     }
   },
-  body: DataTypes.TEXT,
+  going: {
+    type: DataTypes.ENUM("going", "maybe", "notGoing"),
+  },
   privacy: {
     type: DataTypes.ENUM("public", "following"),
     defaultValue: "public",
   },
 });
 
-export { PostComment };
+export { Rsvp };

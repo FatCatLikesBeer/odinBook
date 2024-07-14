@@ -4,12 +4,12 @@ import sequelize from './SequelizeConnection';
 // Model Definition
 const PostLike = sequelize.define("PostLike", {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
     primaryKey: true,
   },
   ownerId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: "Users",
@@ -17,7 +17,7 @@ const PostLike = sequelize.define("PostLike", {
     }
   },
   parentId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     references: {
       model: "Posts",
       key: "id"

@@ -4,12 +4,12 @@ import sequelize from './SequelizeConnection';
 // Model Definition
 const EventLike = sequelize.define("EventLike", {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
     primaryKey: true,
   },
   ownerId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: "Users",
@@ -17,7 +17,7 @@ const EventLike = sequelize.define("EventLike", {
     }
   },
   parentId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     references: {
       model: "Events",
       key: "id"

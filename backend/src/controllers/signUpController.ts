@@ -3,17 +3,13 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 import { default as asyncHandler } from 'express-async-handler';
 import { body, validationResult } from 'express-validator';
-import * as jwt from 'jsonwebtoken';
 
 // Import Types
 import { Request, Response, NextFunction } from 'express';
-import { Secret } from 'jsonwebtoken';
 import { ResponseJSON } from '../../types/custom/Responses';
 
 // Import Models
 import { User } from '../models/User';
-
-const secret: Secret = process.env.JWT_SECRET as string;
 
 export const signUpController: any = {};
 

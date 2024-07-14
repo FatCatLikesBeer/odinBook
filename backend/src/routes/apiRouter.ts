@@ -11,7 +11,7 @@ import { sendPayload } from '../middleware/sendPayload';
 export const apiRouter = Router();
 
 apiRouter.get('/', index);
-apiRouter.use('/signup', signUpRouter);
+apiRouter.use('/signup', signUpRouter, sendPayload);
 apiRouter.use('/login', logInRouter, sendPayload);
 apiRouter.use('/posts', postRouter);
 apiRouter.use('/events', eventRouter);

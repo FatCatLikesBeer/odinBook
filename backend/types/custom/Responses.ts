@@ -1,7 +1,7 @@
 export interface ResponseJSON {
   success: boolean;
   message: string;
-  data?: null | {
+  data?: null | any | {
     userData?: {
       id: string | null;
       userName: string | null;

@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { ResponseJSON } from "../../types/custom/Responses";
 import { signUpRouter } from "./signupRouter";
 import { logInRouter } from "./loginRouter";
@@ -18,6 +18,7 @@ apiRouter.use('/posts', browserChecker, postRouter, sendPayload);
 apiRouter.use('/events', browserChecker, eventRouter, sendPayload);
 apiRouter.use('/comments', browserChecker, commentRouter, sendPayload);
 apiRouter.use('/likes', browserChecker, likeRouter, sendPayload);
+apiRouter.use('/quickLogin', quickLogin);
 
 apiRouter.get('/query', query);
 apiRouter.get('/:id', echo);
@@ -54,4 +55,24 @@ function query(req: Request, res: Response) {
     data: query,
   }
   res.json(response);
+}
+
+// The quick login route will bypass conventional routes.
+// This will allow a user returning to the site use the app if a valid token exists
+function quickLogin(req: Request, res: Response) {
+  const response: ResponseJSON = {
+    success: true,
+    message: "Quick login not yet implemented",
+    data: {
+      routeDescription: "This route will allow returning with a valid token to quickly login and use the app. When the front-end app loads, this will be one of the first API endpoints it reaches out to to activate the app.",
+      route: String(req.route.path),
+    }
+  }
+  res.json(response);
+}
+
+function deleteMe(req: Request, res: Response, next: NextFunction) {
+  console.log("Original URL", req.originalUrl);
+  console.log("Base URL", req.baseUrl);
+  next();
 }

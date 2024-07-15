@@ -5,6 +5,7 @@ import { ResponseJSON } from '../Responses';
 declare global {
   namespace Express {
     export interface Request {
+      setCookie: string;
       response: ResponseJSON;
       tokenPayload: {
         id: string;

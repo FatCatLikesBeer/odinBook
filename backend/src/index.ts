@@ -1,5 +1,6 @@
 // Import Modules & Types
 import express from 'express';
+import cookieParser from 'cookie-parser';
 
 // Import Routes & Controllers
 import { apiRouter } from "./routes/apiRouter";
@@ -10,6 +11,7 @@ const logger = require('morgan');
 
 // Post App Config
 const app = express();
+app.use(cookieParser());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

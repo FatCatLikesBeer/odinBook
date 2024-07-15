@@ -7,16 +7,17 @@ import { eventRouter } from "./eventRouter";
 import { commentRouter } from "./commentRouter";
 import { likeRouter } from "./likeRouter";
 import { sendPayload } from '../middleware/sendPayload';
+import { browserChecker } from '../middleware/browserChecker';
 
 export const apiRouter = Router();
 
 apiRouter.get('/', index);
-apiRouter.use('/signup', signUpRouter, sendPayload);
-apiRouter.use('/login', logInRouter, sendPayload);
-apiRouter.use('/posts', postRouter);
-apiRouter.use('/events', eventRouter);
-apiRouter.use('/comments', commentRouter);
-apiRouter.use('/likes', likeRouter);
+apiRouter.use('/signup', browserChecker, signUpRouter, sendPayload);
+apiRouter.use('/login', browserChecker, logInRouter, sendPayload);
+apiRouter.use('/posts', browserChecker, postRouter, sendPayload);
+apiRouter.use('/events', browserChecker, eventRouter, sendPayload);
+apiRouter.use('/comments', browserChecker, commentRouter, sendPayload);
+apiRouter.use('/likes', browserChecker, likeRouter, sendPayload);
 
 apiRouter.get('/query', query);
 apiRouter.get('/:id', echo);
@@ -32,6 +33,7 @@ function index(req: Request, res: Response) {
 }
 
 function echo(req: Request, res: Response) {
+  req.error = undefined;
   const query: string = req.params.id;
   const response: ResponseJSON = {
     success: true,
@@ -44,6 +46,7 @@ function echo(req: Request, res: Response) {
 // This is a nonuse query route so I can test & learn how to use URI queries
 // I've never used queries before.
 function query(req: Request, res: Response) {
+  req.error = undefined;
   const query = req.query;
   const response: ResponseJSON = {
     success: true,

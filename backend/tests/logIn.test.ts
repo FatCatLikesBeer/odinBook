@@ -1,11 +1,13 @@
 require('dotenv').config();
 const request = require('supertest');
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import { logInRouter } from '../src/routes/loginRouter';
 import { sendPayload } from '../src/middleware/sendPayload';
 import sequelize from '../src/models/SequelizeConnection';
 
 const app = express();
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/', logInRouter, sendPayload);

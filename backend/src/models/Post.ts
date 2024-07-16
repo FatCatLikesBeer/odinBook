@@ -16,7 +16,7 @@ const Post = sequelize.define("Post", {
       key: "id"
     }
   },
-  title: DataTypes.STRING,
+  title: DataTypes.STRING(190),
   body: DataTypes.TEXT,
   type: {
     type: DataTypes.ENUM("text", "link", "image"),

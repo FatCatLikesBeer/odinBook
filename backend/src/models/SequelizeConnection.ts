@@ -4,7 +4,7 @@ require('dotenv').config();
 const database = String(process.env.DBDEV);
 const user = String(process.env.DBUSER);
 const password = String(process.env.DBPASSWORD);
-const url = String(process.env.DBURL);
+const url = String(process.env.DB_URL);
 
 const sequelize = new Sequelize(database, user, password, {
   host: url,

@@ -9,18 +9,18 @@ const User = sequelize.define("User", {
     primaryKey: true,
   },
   userName: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(190),
     allowNull: false,
     unique: true,
   },
-  displayName: { type: DataTypes.STRING, allowNull: false },
+  displayName: { type: DataTypes.STRING(190), allowNull: false },
   email: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(190),
     allowNull: false,
     unique: true,
   },
-  password: { type: DataTypes.STRING, allowNull: false },
-  city: { type: DataTypes.TEXT },
+  password: { type: DataTypes.STRING(190), allowNull: false },
+  city: { type: DataTypes.STRING(190) },
   privacy: {
     type: DataTypes.ENUM("public", "following"),
     defaultValue: "public"

@@ -35,16 +35,50 @@ describe("Lacking browser & token stuff", () => {
   const agent = request.agent(app);
   let cookie: any;
   it("Lacking cookies", async () => {
-    const response = await agent
+    await agent
       .post('/')
       .expect("Content-Type", /json/)
       .expect(401);
   });
+
+  it("Lacking 'Bearer'", async () => {
+    await agent
+      .post('/')
+      .set('user-agent', 'JestSupertest/0.0')
+      .expect("Content-Type", /json/)
+      .expect(401);
+  });
+
+  it("Lacking valid token", async () => {
+    await agent
+      .post('/')
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', "Bearer=invalidJWT")
+      .expect("Content-Type", /json/)
+      .expect(401);
+  });
+
+  it("Lacking userAget", async () => {
+    await agent
+      .post('/')
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', "Bearer=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyQWdlbnQiOiJtaXNtYXRjaGluZ1VzZXJBZ2VudCIsImlhdCI6MTUxNjIzOTAyMn0.iu19gJPnz7BgvchCuQCaU91C6w_VXaX4v_Bd-yQash4")
+      .expect("Content-Type", /json/)
+      .expect(401);
+  });
 });
-// Lacking cookies
-// Lacking Bearer
-// Invalid token
-// Lacking token.userAgent
+
+describe("Successful post submission", () => {
+  const agent = request.agent(app);
+  it("Successful post submission", async () => {
+    await agent
+      .post('/')
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', 'Bearer=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyQWdlbnQiOiJKZXN0U3VwZXJ0ZXN0LzAuMCIsImlhdCI6MTUxNjIzOTAyMn0.zQ0xQzl8dF98YYOJ0kwUs7TlUOTeYFM4T6lBuXpaGJg')
+      .expect("Content-Type", /json/)
+      .expect(200);
+  })
+});
 
 // Missing ownerId
 // Missing/unselected type

@@ -29,7 +29,7 @@ describe('Successfull Login', () => {
   it('Proper values', async () => {
     const loginResponse = await agent
       .post('/')
-      .set('User-Agent', 'JestSupertest/0.0')
+      .set('user-agent', 'JestSupertest/0.0')
       .send({
         email: 'itisbilly@gmail.com',
         password: accountPassword,

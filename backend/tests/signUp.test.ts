@@ -27,7 +27,7 @@ describe('Successfull Signup', () => {
   it('Sends Unique Signup Info', async () => {
     const loginResponse = await agent
       .post('/')
-      .set('User-Agent', 'JestSupertest/0.0')
+      .set('user-agent', 'JestSupertest/0.0')
       .send({
         userName: `delete_me_${apendage}`,
         password: 'fakePassword',

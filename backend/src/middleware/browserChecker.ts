@@ -33,7 +33,6 @@ export function browserChecker(req: Request, res: Response, next: NextFunction) 
     const cookie: string | undefined = req.cookies.Bearer;
     if (cookie == undefined) {
       sendPayload(req, res);
-      console.error("No Bearer cookie");
       return;
     }
 
@@ -48,21 +47,18 @@ export function browserChecker(req: Request, res: Response, next: NextFunction) 
     });
     if (verifyError != undefined) {
       sendPayload(req, res);
-      console.error("Invalid JWT");
       return;
     }
 
     // Does the JWT have an userAgent property?
     if (tokenUserAgent == undefined) {
       sendPayload(req, res);
-      console.error("JWT no userAgent property");
       return;
     }
 
     // Does the agent match your browser?
     if (tokenUserAgent != req.headers['user-agent']) {
       sendPayload(req, res);
-      console.error("tokenUserAgent & user-agent do not match");
       return;
     }
 

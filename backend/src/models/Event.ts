@@ -16,12 +16,28 @@ const Event = sequelize.define("Event", {
       key: "id"
     }
   },
-  title: DataTypes.STRING(190),
-  description: DataTypes.TEXT,
+  title: {
+    type: DataTypes.STRING(190),
+    allowNull: false,
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
   images: DataTypes.TEXT("long"), // This will be an array in JSON
-  location: DataTypes.STRING(190),
-  startTime: DataTypes.DATE,
-  endTime: DataTypes.DATE,
+  location: {
+    type: DataTypes.STRING(190),
+    defaultValue: "/public/default_event.png",
+    allowNull: false,
+  },
+  startTime: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  endTime: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
   externalLink: DataTypes.STRING(190),
   privacy: {
     type: DataTypes.ENUM("public", "following"),

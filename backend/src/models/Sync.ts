@@ -10,14 +10,14 @@ import { EventCommentLike } from "./EventCommentLike";
 import { Rsvp } from './Rsvp';
 
 export function sync() {
-  // User.sync({ force: true });
-  // Post.sync({ force: true });
-  // Event.sync({ force: true });
-  // PostLike.sync({ force: true });
-  // PostComment.sync({ force: true });
-  // EventLike.sync({ force: true });
-  // EventComment.sync({ force: true });
-  // Rsvp.sync({ force: true });
-  EventCommentLike.sync({ alter: true });
-  PostCommentLike.sync({ alter: true });
+  // User.sync({ alter: true });
+  // Post.sync({ alter: true });
+  // Event.sync({ alter: true });
+  // PostLike.sync({ alter: true });
+  // PostComment.sync({ alter: true });
+  // EventLike.sync({ alter: true });
+  // EventComment.sync({ alter: true });
+  // Rsvp.sync({ alter: true });
+  // EventCommentLike.sync({ alter: true });
+  // PostCommentLike.sync({ alter: true });
 }

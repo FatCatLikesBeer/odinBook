@@ -80,8 +80,29 @@ describe("Successful post submission", () => {
   })
 });
 
-// Missing ownerId
-// Missing/unselected type
-// Missing title based on selected type
+describe("Missing field values", () => {
+  const agent = request.agent(app);
+  it("Missing ownerID", async () => {
+  });
+
+  it("Missing description", async () => {
+  });
+
+  it("Missing location", async () => {
+  });
+
+  it("Missing startTime", async () => {
+  });
+
+  it("Missing endTime", async () => {
+  });
+});
+
+describe("Successful Post Submission", () => {
+  it("Successful Post Submission", async () => {
+  });
+});
+
+// missing: title, description, location, startTime, endTime
 
 // Successful post submission

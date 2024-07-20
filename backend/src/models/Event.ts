@@ -24,10 +24,9 @@ const Event = sequelize.define("Event", {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  images: DataTypes.TEXT("long"), // This will be an array in JSON
+  images: DataTypes.TEXT("long"),     // This will be an array in JSON
   location: {
     type: DataTypes.STRING(190),
-    defaultValue: "/public/default_event.png",
     allowNull: false,
   },
   startTime: {

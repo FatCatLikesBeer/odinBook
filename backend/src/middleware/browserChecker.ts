@@ -37,30 +37,39 @@ export function browserChecker(req: Request, res: Response, next: NextFunction) 
     }
 
     // Is that cookie a valid JWT?
-    let tokenUserAgent: string | undefined = undefined;
-    let verifyError: string | undefined = undefined;
+    let userAgentFromToken: string | undefined = undefined;
+    let errorFromTokenVerification: string | undefined = undefined;
+    let idFromToken: string = "I need this here to make TypeScript happy. I will go away if there are any problems";
+
     jwt.verify(String(cookie), JWTsecret, (error: any, tokenData: any) => {
       if (error) {
-        verifyError = error;
+        errorFromTokenVerification = error;
       }
-      tokenUserAgent = tokenData?.userAgent;
+      userAgentFromToken = tokenData?.userAgent;
+      idFromToken = tokenData?.id;
     });
-    if (verifyError != undefined) {
+
+    if (errorFromTokenVerification != undefined) {
       sendPayload(req, res);
       return;
     }
 
     // Does the JWT have an userAgent property?
-    if (tokenUserAgent == undefined) {
+    if (userAgentFromToken == undefined) {
       sendPayload(req, res);
       return;
     }
 
     // Does the agent match your browser?
-    if (tokenUserAgent != req.headers['user-agent']) {
+    if (userAgentFromToken != req.headers['user-agent']) {
       sendPayload(req, res);
       return;
     }
+
+    req.tokenPayload = {
+      id: String(idFromToken),
+      userAgent: String(req.headers['user-agent'])
+    };
 
     // Your stuff appears to be valid!
     // Remove defensive message

@@ -36,7 +36,6 @@ const jwtProper = "Bearer=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyQWdlbnQiO
 // Lacking user-agent
 describe("Lacking browser & token stuff", () => {
   const agent = request.agent(app);
-  let cookie: any;
   it("Lacking cookies", async () => {
     await agent
       .post('/')
@@ -71,18 +70,6 @@ describe("Lacking browser & token stuff", () => {
   });
 });
 
-describe("Successful post submission", () => {
-  const agent = request.agent(app);
-  it("Successful post submission", async () => {
-    await agent
-      .post('/')
-      .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
-      .expect("Content-Type", /json/)
-      .expect(200);
-  })
-});
-
 describe("Missing field values", () => {
   const agent = request.agent(app);
   it("Missing ownerId", async () => {
@@ -91,13 +78,12 @@ describe("Missing field values", () => {
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
       .set('Cookie', jwtProper)
-      .expect("Content-Type", /json/)
-      .send(JSON.stringify(body))
+      .send(body)
       .expect("Content-Type", /json/)
       .expect(401);
 
-    const parsedResponse = response.json();
-    expect(parsedResponse.message).toBe("Missing ownerId");
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.message).toBe("Error: Invalid ownerId.");
   });
 
   it("Missing description", async () => {
@@ -106,13 +92,12 @@ describe("Missing field values", () => {
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
       .set('Cookie', jwtProper)
-      .expect("Content-Type", /json/)
-      .send(JSON.stringify(body))
+      .send(body)
       .expect("Content-Type", /json/)
       .expect(401);
 
-    const parsedResponse = response.json();
-    expect(parsedResponse.message).toBe("Missing description");
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.message).toBe("Error: Invalid description.");
   });
 
   it("Missing location", async () => {
@@ -121,13 +106,12 @@ describe("Missing field values", () => {
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
       .set('Cookie', jwtProper)
-      .expect("Content-Type", /json/)
-      .send(JSON.stringify(body))
+      .send(body)
       .expect("Content-Type", /json/)
       .expect(401);
 
-    const parsedResponse = response.json();
-    expect(parsedResponse.message).toBe("Missing location");
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.message).toBe("Error: Invalid location.");
   });
 
   it("Missing startTime", async () => {
@@ -136,13 +120,12 @@ describe("Missing field values", () => {
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
       .set('Cookie', jwtProper)
-      .expect("Content-Type", /json/)
-      .send(JSON.stringify(body))
+      .send(body)
       .expect("Content-Type", /json/)
       .expect(401);
 
-    const parsedResponse = response.json();
-    expect(parsedResponse.message).toBe("Missing start time");
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.message).toBe("Error: Invalid start time.");
   });
 
   it("Missing endTime", async () => {
@@ -151,18 +134,31 @@ describe("Missing field values", () => {
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
       .set('Cookie', jwtProper)
-      .expect("Content-Type", /json/)
-      .send(JSON.stringify(body))
+      .send(body)
       .expect("Content-Type", /json/)
       .expect(401);
 
-    const parsedResponse = response.json();
-    expect(parsedResponse.message).toBe("Missing end time");
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.message).toBe("Error: Invalid end time.");
   });
 });
 
-describe("Successful Post Submission", () => {
-  it("Successful Post Submission", async () => {
+describe("Successful API requests", () => {
+  const agent = request.agent(app);
+  it("Successful post submission", async () => {
+    const body = new BodyContent({});
+    const response = await agent
+      .post('/')
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', jwtProper)
+      .send(body)
+      .expect("Content-Type", /json/)
+      .expect(200);
+
+    const parsedResponse = JSON.parse(response.text);
+    console.log(parsedResponse);
+    expect(parsedResponse.message).toBe("Event: Created");
+    expect(parsedResponse.success).toBeTruthy();
   });
 });
 
@@ -222,7 +218,7 @@ class BodyContent {
   privacy: string | null;
   visibility: string | null;
 
-  constructor({ ownerId = "billy", title = "Here is a title", description = "Here is a description", images = null, location = "http://www.example.com", startTime = today(), endTime = tomorrow(), externalLink = "https://www.exampleStore.com", privacy = "public", visibility = "draft" }: UserOptions) {
+  constructor({ ownerId = "1", title = "Here is a title", description = "Here is a description", images = null, location = "http://www.example.com", startTime = today(), endTime = tomorrow(), externalLink = "https://www.exampleStore.com", privacy = "public", visibility = "draft" }: UserOptions) {
     this.ownerId = ownerId;
     this.title = title;
     this.description = description;

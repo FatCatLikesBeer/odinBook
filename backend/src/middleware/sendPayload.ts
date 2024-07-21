@@ -18,7 +18,7 @@ export const sendPayload = (req: Request, res: Response) => {
   jwt.sign(payload, secret, { expiresIn: '10w' }, (err, token) => {
     if (err) {
       console.error("Error generating token", err);
-      res.json({
+      res.status(500).json({
         success: false,
         message: 'Error generating authentication data',
       });

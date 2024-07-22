@@ -31,13 +31,33 @@ eventController.get = async (req: Request, res: Response, next: NextFunction) =>
   }
 }
 
+eventController.detail = async (req: Request, res: Response, next: NextFunction) => {
+  const eventId = req.params.id;
+  try {
+    const event = await Event.findOne({ where: { id: eventId } });
+    const response: ResponseJSON = {
+      success: true,
+      message: `Event: Detail for eventId: ${event?.dataValues.id}`,
+      data: { ...event?.dataValues }
+    }
+    res.json(response);
+  } catch (error) {
+    const failureResponse: ResponseJSON = {
+      success: false,
+      message: `Error: ${error}`,
+      data: null,
+    }
+    req.error = 401;
+    req.response = failureResponse;
+    next();
+  }
+}
+
 eventController.post = async (req: Request, res: Response, next: NextFunction) => {
   try {
 
     const userEventOptions = req.body;
     const userData = req.tokenPayload;
-    console.log("userdata.id", userData.id);
-    console.log("userEventOptions.ownerId", userEventOptions.ownerId);
 
     if (userData.id != userEventOptions.ownerId) {
       throw new Error("Invalid ownerId.");

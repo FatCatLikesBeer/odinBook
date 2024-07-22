@@ -24,16 +24,9 @@ afterAll(async () => {
 
 const accountPassword: string = String(process.env.ACCPASSWORD);
 
-// Import FULL route for Events
-
-//////
-// Tests:
-//////
-
 const jwtWithMissingValue = "Bearer=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyQWdlbnQiOiJtaXNtYXRjaGluZ1VzZXJBZ2VudCIsImlhdCI6MTUxNjIzOTAyMn0.iu19gJPnz7BgvchCuQCaU91C6w_VXaX4v_Bd-yQash4";
 const jwtProper = "Bearer=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyQWdlbnQiOiJKZXN0U3VwZXJ0ZXN0LzAuMCIsImlkIjoiMSIsImlhdCI6MTUxNjIzOTAyMn0.z5VDf_c0XOD9hvvsypqlyCqn1_NYVXHRbCb3sIQcc0Q";
 
-// Lacking user-agent
 describe("Lacking browser & token stuff", () => {
   const agent = request.agent(app);
   it("Lacking cookies", async () => {
@@ -145,26 +138,34 @@ describe("Missing field values", () => {
 
 describe("Successful API requests", () => {
   const agent = request.agent(app);
-  it("Successful post submission", async () => {
-    const body = new BodyContent({});
+  // it("Successful post submission", async () => {
+  //   const body = new BodyContent({});
+  //   const response = await agent
+  //     .post('/')
+  //     .set('user-agent', 'JestSupertest/0.0')
+  //     .set('Cookie', jwtProper)
+  //     .send(body)
+  //     .expect("Content-Type", /json/)
+  //     .expect(200);
+  //
+  //   const parsedResponse = JSON.parse(response.text);
+  //   expect(parsedResponse.message).toBe("Event: Created");
+  //   expect(parsedResponse.success).toBeTruthy();
+  // });
+
+  it("Successful Event Detail fetch", async () => {
     const response = await agent
-      .post('/')
+      .get('/1')
       .set('user-agent', 'JestSupertest/0.0')
       .set('Cookie', jwtProper)
-      .send(body)
       .expect("Content-Type", /json/)
       .expect(200);
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
-    expect(parsedResponse.message).toBe("Event: Created");
+    expect(parsedResponse.message).toBe("Event: Detail for eventId: 1");
     expect(parsedResponse.success).toBeTruthy();
   });
 });
-
-// missing: title, description, location, startTime, endTime
-
-// Successful post submission
 
 // Stuff to make my life easier?
 // Maybe?
@@ -179,19 +180,6 @@ function tomorrow() {
   const result = new Date(todayObject.getTime() + msInADay);
   return result;
 }
-
-// interface BodyContent {
-//   ownerId: string;
-//   title: string;
-//   description: string;
-//   images: string | null;
-//   location: string;
-//   startTime: Date;
-//   endTime: Date;
-//   externalLink: string;
-//   privacy: string | null;
-//   visibility: string | null;
-// }
 
 interface UserOptions {
   ownerId?: string;

@@ -35,6 +35,9 @@ eventController.detail = async (req: Request, res: Response, next: NextFunction)
   const eventId = req.params.id;
   try {
     const event = await Event.findOne({ where: { id: eventId } });
+    if (event == null) {
+      throw new Error("Incorrect event ID");
+    }
     const response: ResponseJSON = {
       success: true,
       message: `Event: Detail for eventId: ${event?.dataValues.id}`,

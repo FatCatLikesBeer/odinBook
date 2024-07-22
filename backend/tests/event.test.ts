@@ -136,6 +136,22 @@ describe("Missing field values", () => {
   });
 });
 
+describe("Unsuccessful API queries", () => {
+  const agent = request.agent(app);
+  it("Fetch event from nonexistant eventId", async () => {
+    const response = await agent
+      .get('/badId')
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', jwtProper)
+      .expect("Content-Type", /json/)
+      .expect(401);
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeFalsy();
+    expect(parsedResponse.message).toMatch("Incorrect event ID");
+  });
+});
+
 describe("Successful API requests", () => {
   const agent = request.agent(app);
   // it("Successful post submission", async () => {

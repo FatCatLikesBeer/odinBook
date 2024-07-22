@@ -49,9 +49,22 @@ function echo(req: Request, res: Response) {
 function query(req: Request, res: Response) {
   req.error = undefined;
   const query = req.query;
+  const keys = Object.keys(query);
+  let message: string = "Values you provided:";
+
+  keys.forEach((element, index, arr) => {
+    if (index == arr.length - 1) {
+      message += ` and ${element}.`;
+    } else {
+      message += ` ${element},`;
+    }
+  });
+
+  // const regex = /,$/
+  // const formattedMessage = message.replace(regex, ".");
   const response: ResponseJSON = {
     success: true,
-    message: "You give you name & age!",
+    message: message,
     data: query,
   }
   res.json(response);

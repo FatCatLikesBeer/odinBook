@@ -7,6 +7,8 @@ import { eventRouter } from '../src/routes/eventRouter';
 import { browserChecker } from '../src/middleware/browserChecker';
 import { sendPayload } from '../src/middleware/sendPayload';
 import sequelize from '../src/models/SequelizeConnection';
+import { encode } from 'punycode';
+import { parse } from 'path';
 
 const app = express();
 app.use(cookieParser());
@@ -152,10 +154,31 @@ describe("Unsuccessful API queries", () => {
   });
 });
 
+describe("Erronious Queries", () => {
+  const agent = request.agent(app);
+  it("Successful GET query: title", async () => {
+    const queryObject = {
+      title: "slkdjflksoweiurilsdkf"
+    }
+    const queryString = queryToURLEncoded(queryObject);
+    const response = await agent
+      .get(queryString)
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', jwtProper)
+      .expect("Content-Type", /json/)
+      .expect(200);
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.message).toBe("No Events Found");
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeNull();
+  });
+});
+
 describe("Successful API requests", () => {
   const agent = request.agent(app);
   // it("Successful post submission", async () => {
-  //   const body = new BodyContent({});
+  //   let body = new BodyContent({});
   //   const response = await agent
   //     .post('/')
   //     .set('user-agent', 'JestSupertest/0.0')
@@ -180,6 +203,44 @@ describe("Successful API requests", () => {
     const parsedResponse = JSON.parse(response.text);
     expect(parsedResponse.message).toBe("Event: Detail for eventId: 1");
     expect(parsedResponse.success).toBeTruthy();
+  });
+
+  it("Multiple query parameters", async () => {
+    const query = {
+      title: "gender",
+      description: "clown",
+      location: "line",
+    }
+    const queryString = queryToURLEncoded(query);
+    const response = await agent
+      .get(queryString)
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', jwtProper)
+      .expect("Content-Type", /json/)
+      .expect(200);
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.message).toMatch("Event: found 1 event(s)");
+    expect(parsedResponse.data[0].title).toBe("Gender Reveal");
+    expect(parsedResponse.data[0].description).toMatch(/clown/);
+  });
+});
+
+describe("SQL Injection", () => {
+  const agent = request.agent(app);
+  it("Inject a SELECT query", async () => {
+    const query = {
+      title: "SELECT * FROM Events",
+    }
+    const queryString = queryToURLEncoded(query);
+    const response = await agent
+      .get(queryString)
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', jwtProper)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.data).toBeNull();
   });
 });
 
@@ -236,3 +297,10 @@ class BodyContent {
   }
 }
 
+function queryToURLEncoded(queryParameters: any) {
+  let result = Object.entries(queryParameters)
+    .map(([key, value]) => { return `${encodeURIComponent(String(key))}=${encodeURIComponent(String(value))}` })
+    .join('&');
+  result = "/?" + result;
+  return result;
+}

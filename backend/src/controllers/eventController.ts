@@ -1,6 +1,7 @@
 // Import Modules
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, query } from 'express';
 import { ResponseJSON } from '../../types/custom/Responses';
+import { Op } from 'sequelize';
 
 // Import Models
 import { Event } from '../models/Event';
@@ -8,17 +9,32 @@ import { User } from '../models/User';
 
 // Import other stuff
 import { eventBodyValidator } from '../functions/eventBodyValidator';
+import { fuzzifyQuery } from '../functions/fuzzifyQuery';
 
 // Event Controller
 export const eventController: any = {};
 eventController.get = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const response: ResponseJSON = {
-      success: true,
-      message: "Events controller: GET not yet implemented",
-      data: {}
+    const queryOptions = fuzzifyQuery(req.query, Op);
+    queryOptions.visibility = "published";
+    const { count, rows } = await Event.findAndCountAll({
+      where: { ...queryOptions }
+    });
+    if (rows.length == 0) {
+      const response: ResponseJSON = {
+        success: true,
+        message: "No Events Found",
+        data: null,
+      }
+      res.json(response);
+    } else {
+      const response: ResponseJSON = {
+        success: true,
+        message: `Event: found ${count} event(s)`,
+        data: { ...rows }
+      }
+      res.json(response);
     }
-    res.json(response);
   } catch (error) {
     const failureResponse: ResponseJSON = {
       success: false,
@@ -34,7 +50,7 @@ eventController.get = async (req: Request, res: Response, next: NextFunction) =>
 eventController.detail = async (req: Request, res: Response, next: NextFunction) => {
   const eventId = req.params.id;
   try {
-    const event = await Event.findOne({ where: { id: eventId } });
+    const event = await Event.findByPk(eventId);
     if (event == null) {
       throw new Error("Incorrect event ID");
     }

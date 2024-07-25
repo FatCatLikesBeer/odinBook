@@ -142,19 +142,24 @@ eventController.put = async (req: Request, res: Response, next: NextFunction) =>
 
 eventController.delete = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const eventId = req.params.id;
+    const eventToBeDeleted = await Event.destroy({ where: { id: eventId } });
+    if (eventToBeDeleted === 0) {
+      throw new Error("Could not find event");
+    }
     const response: ResponseJSON = {
       success: true,
-      message: "Events controller: DELETE not yet implemented",
-      data: {}
+      message: "Event: Deleted",
+      data: null,
     }
     res.json(response);
   } catch (error) {
     const failureResponse: ResponseJSON = {
       success: false,
-      message: `Error: ${error}`,
+      message: `Event: Error deleting: ${error}`,
       data: null,
     }
-    req.error = 401;
+    req.error = 400;
     req.response = failureResponse;
     next();
   }

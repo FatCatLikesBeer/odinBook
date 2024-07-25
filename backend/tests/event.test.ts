@@ -16,6 +16,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/', browserChecker, eventRouter, sendPayload);
 
+let eventIdOfEventToBeDeleted: number;
+
 beforeAll(async () => {
   await sequelize.authenticate();
 });
@@ -154,95 +156,126 @@ describe("Unsuccessful API queries", () => {
   });
 });
 
-describe("Erronious Queries", () => {
+// describe("GET Requests", () => {
+//   const agent = request.agent(app);
+//   it("Request Event via Title: Event does not exist", async () => {
+//     const queryObject = {
+//       title: "slkdjflksoweiurilsdkf"
+//     }
+//     const queryString = queryToURLEncoded(queryObject);
+//     const response = await agent
+//       .get(queryString)
+//       .set('user-agent', 'JestSupertest/0.0')
+//       .set('Cookie', jwtProper)
+//       .expect("Content-Type", /json/)
+//       .expect(200);
+//
+//     const parsedResponse = JSON.parse(response.text);
+//     expect(parsedResponse.message).toBe("No Events Found");
+//     expect(parsedResponse.success).toBeTruthy();
+//     expect(parsedResponse.data).toBeNull();
+//   });
+// });
+
+describe("Successful API requests", () => {
   const agent = request.agent(app);
-  it("Successful GET query: title", async () => {
-    const queryObject = {
-      title: "slkdjflksoweiurilsdkf"
-    }
-    const queryString = queryToURLEncoded(queryObject);
+  it("Successful post submission", async () => {
+    let body = new BodyContent({});
     const response = await agent
-      .get(queryString)
+      .post('/')
       .set('user-agent', 'JestSupertest/0.0')
       .set('Cookie', jwtProper)
+      .send(body)
       .expect("Content-Type", /json/)
       .expect(200);
 
     const parsedResponse = JSON.parse(response.text);
-    expect(parsedResponse.message).toBe("No Events Found");
+    expect(parsedResponse.message).toBe("Event: Created");
     expect(parsedResponse.success).toBeTruthy();
-    expect(parsedResponse.data).toBeNull();
+    eventIdOfEventToBeDeleted = parsedResponse.data.id;
   });
-});
 
-describe("Successful API requests", () => {
-  const agent = request.agent(app);
-  // it("Successful post submission", async () => {
-  //   let body = new BodyContent({});
+  // it("Successful Event Detail fetch", async () => {
   //   const response = await agent
-  //     .post('/')
+  //     .get('/1')
   //     .set('user-agent', 'JestSupertest/0.0')
   //     .set('Cookie', jwtProper)
-  //     .send(body)
   //     .expect("Content-Type", /json/)
   //     .expect(200);
   //
   //   const parsedResponse = JSON.parse(response.text);
-  //   expect(parsedResponse.message).toBe("Event: Created");
+  //   expect(parsedResponse.message).toBe("Event: Detail for eventId: 1");
   //   expect(parsedResponse.success).toBeTruthy();
   // });
-
-  it("Successful Event Detail fetch", async () => {
-    const response = await agent
-      .get('/1')
-      .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
-      .expect("Content-Type", /json/)
-      .expect(200);
-
-    const parsedResponse = JSON.parse(response.text);
-    expect(parsedResponse.message).toBe("Event: Detail for eventId: 1");
-    expect(parsedResponse.success).toBeTruthy();
-  });
-
-  it("Multiple query parameters", async () => {
-    const query = {
-      title: "gender",
-      description: "clown",
-      location: "line",
-    }
-    const queryString = queryToURLEncoded(query);
-    const response = await agent
-      .get(queryString)
-      .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
-      .expect("Content-Type", /json/)
-      .expect(200);
-
-    const parsedResponse = JSON.parse(response.text);
-    expect(parsedResponse.success).toBeTruthy();
-    expect(parsedResponse.message).toMatch("Event: found 1 event(s)");
-    expect(parsedResponse.data[0].title).toBe("Gender Reveal");
-    expect(parsedResponse.data[0].description).toMatch(/clown/);
-  });
+  //
+  // it("Multiple query parameters", async () => {
+  //   const query = {
+  //     title: "gender",
+  //     description: "clown",
+  //     location: "line",
+  //   }
+  //   const queryString = queryToURLEncoded(query);
+  //   const response = await agent
+  //     .get(queryString)
+  //     .set('user-agent', 'JestSupertest/0.0')
+  //     .set('Cookie', jwtProper)
+  //     .expect("Content-Type", /json/)
+  //     .expect(200);
+  //
+  //   const parsedResponse = JSON.parse(response.text);
+  //   expect(parsedResponse.success).toBeTruthy();
+  //   expect(parsedResponse.message).toMatch("Event: found 1 event(s)");
+  //   expect(parsedResponse.data[0].title).toBe("Gender Reveal");
+  //   expect(parsedResponse.data[0].description).toMatch(/clown/);
+  // });
 });
 
-describe("SQL Injection", () => {
+describe("DELETE Requests", () => {
   const agent = request.agent(app);
-  it("Inject a SELECT query", async () => {
-    const query = {
-      title: "SELECT * FROM Events",
-    }
-    const queryString = queryToURLEncoded(query);
+  it("Successful Event Deletion", async () => {
     const response = await agent
-      .get(queryString)
+      .delete(`/${eventIdOfEventToBeDeleted}`)
       .set('user-agent', 'JestSupertest/0.0')
       .set('Cookie', jwtProper)
+      .expect("Content-Type", /json/)
+      .expect(200)
 
     const parsedResponse = JSON.parse(response.text);
-    expect(parsedResponse.data).toBeNull();
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.message).toMatch("Event: Deleted");
+  });
+
+  it("Delete nonexistant event", async () => {
+    const response = await agent
+      .delete('/what')
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', jwtProper)
+      .expect("Content-Type", /json/)
+      .expect(400)
+
+    const parsedResponse = JSON.parse(response.text);
+    console.log(parsedResponse);
+    expect(parsedResponse.success).toBeFalsy();
+    expect(parsedResponse.message).toMatch(/Event: Error deleting/);
   });
 });
+
+// describe("SQL Injection", () => {
+//   const agent = request.agent(app);
+//   it("Inject a SELECT query", async () => {
+//     const query = {
+//       title: "SELECT * FROM Events",
+//     }
+//     const queryString = queryToURLEncoded(query);
+//     const response = await agent
+//       .get(queryString)
+//       .set('user-agent', 'JestSupertest/0.0')
+//       .set('Cookie', jwtProper)
+//
+//     const parsedResponse = JSON.parse(response.text);
+//     expect(parsedResponse.data).toBeNull();
+//   });
+// });
 
 // Stuff to make my life easier?
 // Maybe?

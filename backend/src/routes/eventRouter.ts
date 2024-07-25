@@ -7,4 +7,4 @@ eventRouter.get('/:id', eventController.detail);
 eventRouter.get('/', eventController.get);
 eventRouter.post('/', eventController.post);
 eventRouter.put('/', eventController.put);
-eventRouter.delete('/', eventController.delete);
+eventRouter.delete('/:id', eventController.delete);

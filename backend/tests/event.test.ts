@@ -279,9 +279,10 @@ describe("PUT Requests", () => {
 
   it("Nonexistent onwer ID", async () => {
     const localEventObject: any = { ...eventObject };
+    const path = localEventObject.id;
     localEventObject.ownerId = "";
     const response = await agent
-      .put('/1')
+      .put(`/${path}`)
       .set('user-agent', 'JestSupertest/0.0')
       .set('Cookie', jwtProper)
       .send(localEventObject)
@@ -294,31 +295,33 @@ describe("PUT Requests", () => {
     expect(parsedResponse.data).toBeNull();
   });
 
-  // it("Empty Title", async () => {
-  //   const localEventObject: any = { ...eventObject };
-  //   localEventObject.title = "";
-  //   const response = await agent
-  //     .put('/1')
-  //     .set('user-agent', 'JestSupertest/0.0')
-  //     .set('Cookie', jwtProper)
-  //     .send(JSON.stringify(localEventObject))
-  //     .expect('Content-Type', /json/)
-  //     .expect(400)
-  //
-  //   const parsedResponse = JSON.parse(response.text);
-  //   expect(parsedResponse.success).toBeFalsy();
-  //   expect(parsedResponse.message).toMatch(/Event: Bad PUT request: title/);
-  //   expect(parsedResponse.data).toBeNull();
-  // });
-  //
+  it("Empty Title", async () => {
+    const localEventObject: any = { ...eventObject };
+    const path = localEventObject.id;
+    localEventObject.title = "";
+    const response = await agent
+      .put(`/${path}`)
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', jwtProper)
+      .send(localEventObject)
+      .expect('Content-Type', /json/)
+      .expect(400)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeFalsy();
+    expect(parsedResponse.message).toMatch(/Event: Bad PUT request: title/);
+    expect(parsedResponse.data).toBeNull();
+  });
+
   // it("Conflicting eventID", async () => {
   //   const localEventObject: any = { ...eventObject };
+  //   const path = localEventObject.id;
   //   localEventObject.id = "2";
   //   const response = await agent
-  //     .put('/1')
+  //     .put(`/${path}`)
   //     .set('user-agent', 'JestSupertest/0.0')
   //     .set('Cookie', jwtProper)
-  //     .send(JSON.stringify(localEventObject))
+  //     .send(localEventObject)
   //     .expect('Content-Type', /json/)
   //     .expect(400)
   //
@@ -335,7 +338,7 @@ describe("PUT Requests", () => {
   //     .put('/1')
   //     .set('user-agent', 'JestSupertest/0.0')
   //     .set('Cookie', jwtProper)
-  //     .send(JSON.stringify(localEventObject))
+  //     .send(localEventObject)
   //     .expect('Content-Type', /json/)
   //     .expect(400)
   //
@@ -344,15 +347,18 @@ describe("PUT Requests", () => {
   //   expect(parsedResponse.message).toMatch(/Event: Bad PUT request: id/);
   //   expect(parsedResponse.data).toBeNull();
   // });
-  //
+
   // it("Successful change", async () => {
   //   const localEventObject: any = { ...eventObject };
-  //   localEventObject.onwerId = "";
+  //   const path = localEventObject.id;
+  //   let title = localEventObject.title.split(" ");
+  //   title[title.length - 1] = title[title.length - 1] * 1 + 1;
+  //   localEventObject.title = title.join(" ");
   //   const response = await agent
-  //     .put('/1')
+  //     .put(`/${path}`)
   //     .set('user-agent', 'JestSupertest/0.0')
   //     .set('Cookie', jwtProper)
-  //     .send(JSON.stringify(localEventObject))
+  //     .send(localEventObject)
   //     .expect('Content-Type', /json/)
   //     .expect(200)
   //
@@ -419,7 +425,7 @@ class BodyContent {
   privacy: string | null;
   visibility: string | null;
 
-  constructor({ ownerId = "1", title = "Here is a title", description = "Here is a description", images = null, location = "http://www.example.com", startTime = today(), endTime = tomorrow(), externalLink = "https://www.exampleStore.com", privacy = "public", visibility = "draft" }: UserOptions) {
+  constructor({ ownerId = "1", title = "Here is a title", description = "Here is a description", images = null, location = "Los Angeles", startTime = today(), endTime = tomorrow(), externalLink = "https://www.exampleStore.com", privacy = "public", visibility = "draft" }: UserOptions) {
     this.ownerId = ownerId;
     this.title = title;
     this.description = description;

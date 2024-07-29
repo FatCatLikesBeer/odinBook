@@ -126,7 +126,7 @@ eventController.post = async (req: Request, res: Response, next: NextFunction) =
 }
 
 eventController.put = [
-  body('id').trim().notEmpty().escape().withMessage('Event: Bad PUT request: id'),
+  body('id').notEmpty().escape().withMessage('Event: Bad PUT request: id'),
   body('ownerId').trim().notEmpty().escape().withMessage('Event: Bad PUT request: owner Id'),
   body('title').trim().notEmpty().escape().withMessage('Event: Bad PUT request: title'),
   body('description').trim().notEmpty().escape().withMessage('Event: Bad PUT request: description'),
@@ -136,13 +136,15 @@ eventController.put = [
 
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      let requestedEventId = req.params.id;
       const errorResult = validationResult(req);
       if (!errorResult.isEmpty()) {
+        console.log(req.body);
         req.error = 400;
         throw new Error(errorResult.array()[0].msg);
       }
 
-      const query = await Event.findOne({ where: { id: req.body.id } });
+      const query = await Event.findOne({ where: { id: requestedEventId } });
       if (query == null) {
         console.log("Could not find event via id");
         req.error = 400;
@@ -156,7 +158,7 @@ eventController.put = [
 
       const response: ResponseJSON = {
         success: true,
-        message: "Events controller: PUT not yet implemented",
+        message: "Event: Change Successful",
         data: {}
       }
       req.response = response;
@@ -164,7 +166,7 @@ eventController.put = [
     } catch (error) {
       const failureResponse: ResponseJSON = {
         success: false,
-        message: `Error: ${error}`,
+        message: `${error}`,
         data: null,
       }
       if (req.error == undefined) {

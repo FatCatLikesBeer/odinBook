@@ -142,7 +142,7 @@ describe("Missing field values", () => {
 
 describe("Unsuccessful API queries", () => {
   const agent = request.agent(app);
-  it("Fetch event from nonexistant eventId", async () => {
+  it("Fetch event from nonexistent eventId", async () => {
     const response = await agent
       .get('/badId')
       .set('user-agent', 'JestSupertest/0.0')
@@ -245,7 +245,7 @@ describe("DELETE Requests", () => {
     expect(parsedResponse.message).toMatch("Event: Deleted");
   });
 
-  it("Delete nonexistant event", async () => {
+  it("Delete nonexistent event", async () => {
     const response = await agent
       .delete('/what')
       .set('user-agent', 'JestSupertest/0.0')
@@ -254,10 +254,113 @@ describe("DELETE Requests", () => {
       .expect(400)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeFalsy();
     expect(parsedResponse.message).toMatch(/Event: Error deleting/);
   });
+});
+
+describe("PUT Requests", () => {
+  const agent = request.agent(app);
+  let eventObject: any;
+  it("GET event to edit", async () => {
+    const response = await agent
+      .get('/1')
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', jwtProper)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).not.toBeNull();
+
+    eventObject = parsedResponse.data;
+  });
+
+  it("Nonexistent onwer ID", async () => {
+    const localEventObject: any = { ...eventObject };
+    localEventObject.ownerId = "";
+    const response = await agent
+      .put('/1')
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('Cookie', jwtProper)
+      .send(localEventObject)
+      .expect('Content-Type', /json/)
+      .expect(400)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeFalsy();
+    expect(parsedResponse.message).toMatch(/Event: Bad PUT request: owner Id/);
+    expect(parsedResponse.data).toBeNull();
+  });
+
+  // it("Empty Title", async () => {
+  //   const localEventObject: any = { ...eventObject };
+  //   localEventObject.title = "";
+  //   const response = await agent
+  //     .put('/1')
+  //     .set('user-agent', 'JestSupertest/0.0')
+  //     .set('Cookie', jwtProper)
+  //     .send(JSON.stringify(localEventObject))
+  //     .expect('Content-Type', /json/)
+  //     .expect(400)
+  //
+  //   const parsedResponse = JSON.parse(response.text);
+  //   expect(parsedResponse.success).toBeFalsy();
+  //   expect(parsedResponse.message).toMatch(/Event: Bad PUT request: title/);
+  //   expect(parsedResponse.data).toBeNull();
+  // });
+  //
+  // it("Conflicting eventID", async () => {
+  //   const localEventObject: any = { ...eventObject };
+  //   localEventObject.id = "2";
+  //   const response = await agent
+  //     .put('/1')
+  //     .set('user-agent', 'JestSupertest/0.0')
+  //     .set('Cookie', jwtProper)
+  //     .send(JSON.stringify(localEventObject))
+  //     .expect('Content-Type', /json/)
+  //     .expect(400)
+  //
+  //   const parsedResponse = JSON.parse(response.text);
+  //   expect(parsedResponse.success).toBeFalsy();
+  //   expect(parsedResponse.message).toMatch(/Event: Bad PUT request: id/);
+  //   expect(parsedResponse.data).toBeNull();
+  // });
+  //
+  // it("Empty Event Id", async () => {
+  //   const localEventObject: any = { ...eventObject };
+  //   localEventObject.id = "";
+  //   const response = await agent
+  //     .put('/1')
+  //     .set('user-agent', 'JestSupertest/0.0')
+  //     .set('Cookie', jwtProper)
+  //     .send(JSON.stringify(localEventObject))
+  //     .expect('Content-Type', /json/)
+  //     .expect(400)
+  //
+  //   const parsedResponse = JSON.parse(response.text);
+  //   expect(parsedResponse.success).toBeFalsy();
+  //   expect(parsedResponse.message).toMatch(/Event: Bad PUT request: id/);
+  //   expect(parsedResponse.data).toBeNull();
+  // });
+  //
+  // it("Successful change", async () => {
+  //   const localEventObject: any = { ...eventObject };
+  //   localEventObject.onwerId = "";
+  //   const response = await agent
+  //     .put('/1')
+  //     .set('user-agent', 'JestSupertest/0.0')
+  //     .set('Cookie', jwtProper)
+  //     .send(JSON.stringify(localEventObject))
+  //     .expect('Content-Type', /json/)
+  //     .expect(200)
+  //
+  //   const parsedResponse = JSON.parse(response.text);
+  //   expect(parsedResponse.success).toBeTruthy();
+  //   expect(parsedResponse.message).toMatch(/Event: Change Successful/);
+  //   expect(parsedResponse.data).not.toBeNull();
+  // });
 });
 
 // describe("SQL Injection", () => {

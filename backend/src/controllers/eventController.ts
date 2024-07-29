@@ -2,14 +2,15 @@
 import { Request, Response, NextFunction, query } from 'express';
 import { ResponseJSON } from '../../types/custom/Responses';
 import { Op } from 'sequelize';
+import { body, validationResult } from 'express-validator';
 
 // Import Models
 import { Event } from '../models/Event';
-import { User } from '../models/User';
 
 // Import other stuff
 import { eventBodyValidator } from '../functions/eventBodyValidator';
 import { fuzzifyQuery } from '../functions/fuzzifyQuery';
+import { error } from 'console';
 
 // Event Controller
 export const eventController: any = {};
@@ -26,14 +27,16 @@ eventController.get = async (req: Request, res: Response, next: NextFunction) =>
         message: "No Events Found",
         data: null,
       }
-      res.json(response);
+      req.response = response;
+      next();
     } else {
       const response: ResponseJSON = {
         success: true,
         message: `Event: found ${count} event(s)`,
         data: { ...rows }
       }
-      res.json(response);
+      req.response = response;
+      next();
     }
   } catch (error) {
     const failureResponse: ResponseJSON = {
@@ -59,7 +62,8 @@ eventController.detail = async (req: Request, res: Response, next: NextFunction)
       message: `Event: Detail for eventId: ${event?.dataValues.id}`,
       data: { ...event?.dataValues }
     }
-    res.json(response);
+    req.response = response;
+    next();
   } catch (error) {
     const failureResponse: ResponseJSON = {
       success: false,
@@ -104,7 +108,8 @@ eventController.post = async (req: Request, res: Response, next: NextFunction) =
         message: "Event: Created",
         data: { ...userCreatedEvent.dataValues },
       }
-      res.json(response);
+      req.response = response;
+      next()
     }
   } catch (error) {
 
@@ -120,25 +125,56 @@ eventController.post = async (req: Request, res: Response, next: NextFunction) =
   }
 }
 
-eventController.put = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const response: ResponseJSON = {
-      success: true,
-      message: "Events controller: PUT not yet implemented",
-      data: {}
+eventController.put = [
+  body('id').trim().notEmpty().escape().withMessage('Event: Bad PUT request: id'),
+  body('ownerId').trim().notEmpty().escape().withMessage('Event: Bad PUT request: owner Id'),
+  body('title').trim().notEmpty().escape().withMessage('Event: Bad PUT request: title'),
+  body('description').trim().notEmpty().escape().withMessage('Event: Bad PUT request: description'),
+  body('location').trim().notEmpty().escape().withMessage('Event: Bad PUT request: location'),
+  body('startTime').trim().notEmpty().escape().withMessage('Event: Bad PUT request: start time'),
+  body('endTime').trim().notEmpty().escape().withMessage('Event: Bad PUT request: end time'),
+
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const errorResult = validationResult(req);
+      if (!errorResult.isEmpty()) {
+        req.error = 400;
+        throw new Error(errorResult.array()[0].msg);
+      }
+
+      const query = await Event.findOne({ where: { id: req.body.id } });
+      if (query == null) {
+        console.log("Could not find event via id");
+        req.error = 400;
+        throw new Error('Event: Could not find event');
+      }
+
+      await Event.update(
+        { ...req.body },
+        { where: { id: req.body.id } }
+      );
+
+      const response: ResponseJSON = {
+        success: true,
+        message: "Events controller: PUT not yet implemented",
+        data: {}
+      }
+      req.response = response;
+      next()
+    } catch (error) {
+      const failureResponse: ResponseJSON = {
+        success: false,
+        message: `Error: ${error}`,
+        data: null,
+      }
+      if (req.error == undefined) {
+        req.error = 401;
+      }
+      req.response = failureResponse;
+      next();
     }
-    res.json(response);
-  } catch (error) {
-    const failureResponse: ResponseJSON = {
-      success: false,
-      message: `Error: ${error}`,
-      data: null,
-    }
-    req.error = 401;
-    req.response = failureResponse;
-    next();
   }
-}
+];
 
 eventController.delete = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -152,7 +188,8 @@ eventController.delete = async (req: Request, res: Response, next: NextFunction)
       message: "Event: Deleted",
       data: null,
     }
-    res.json(response);
+    req.response = response;
+    next()
   } catch (error) {
     const failureResponse: ResponseJSON = {
       success: false,

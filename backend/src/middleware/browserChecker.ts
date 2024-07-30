@@ -42,6 +42,7 @@ export function browserChecker(req: Request, res: Response, next: NextFunction) 
     let idFromToken: string = "I need this here to make TypeScript happy. I will go away if there are any problems";
 
     jwt.verify(String(cookie), JWTsecret, (error: any, tokenData: any) => {
+      console.log(tokenData);
       if (error) {
         errorFromTokenVerification = error;
       }

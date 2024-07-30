@@ -7,8 +7,6 @@ import { eventRouter } from '../src/routes/eventRouter';
 import { browserChecker } from '../src/middleware/browserChecker';
 import { sendPayload } from '../src/middleware/sendPayload';
 import sequelize from '../src/models/SequelizeConnection';
-import { encode } from 'punycode';
-import { parse } from 'path';
 
 const app = express();
 app.use(cookieParser());
@@ -30,6 +28,7 @@ const accountPassword: string = String(process.env.ACCPASSWORD);
 
 const jwtWithMissingValue = "Bearer=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyQWdlbnQiOiJtaXNtYXRjaGluZ1VzZXJBZ2VudCIsImlhdCI6MTUxNjIzOTAyMn0.iu19gJPnz7BgvchCuQCaU91C6w_VXaX4v_Bd-yQash4";
 const jwtProper = "Bearer=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyQWdlbnQiOiJKZXN0U3VwZXJ0ZXN0LzAuMCIsImlkIjoiMSIsImlhdCI6MTUxNjIzOTAyMn0.z5VDf_c0XOD9hvvsypqlyCqn1_NYVXHRbCb3sIQcc0Q";
+const jwtIdSetToBottle = "Bearer=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyQWdlbnQiOiJKZXN0U3VwZXJ0ZXN0LzAuMCIsImlkIjoiQm90dGxlIiwiaWF0IjoxNTE2MjM5MDIyfQ.8zADbO-Xca1uw554L5quLU14hJL6kg0k3E9YX7MGSro";
 
 describe("Lacking browser & token stuff", () => {
   const agent = request.agent(app);
@@ -52,7 +51,7 @@ describe("Lacking browser & token stuff", () => {
     await agent
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', "Bearer=invalidJWT")
+      .set('cookie', "Bearer=invalidJWT")
       .expect("Content-Type", /json/)
       .expect(401);
   });
@@ -61,7 +60,7 @@ describe("Lacking browser & token stuff", () => {
     await agent
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtWithMissingValue)
+      .set('cookie', jwtWithMissingValue)
       .expect("Content-Type", /json/)
       .expect(401);
   });
@@ -74,7 +73,7 @@ describe("Missing field values", () => {
     const response = await agent
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
+      .set('cookie', jwtProper)
       .send(body)
       .expect("Content-Type", /json/)
       .expect(401);
@@ -88,7 +87,7 @@ describe("Missing field values", () => {
     const response = await agent
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
+      .set('cookie', jwtProper)
       .send(body)
       .expect("Content-Type", /json/)
       .expect(401);
@@ -102,7 +101,7 @@ describe("Missing field values", () => {
     const response = await agent
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
+      .set('cookie', jwtProper)
       .send(body)
       .expect("Content-Type", /json/)
       .expect(401);
@@ -116,7 +115,7 @@ describe("Missing field values", () => {
     const response = await agent
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
+      .set('cookie', jwtProper)
       .send(body)
       .expect("Content-Type", /json/)
       .expect(401);
@@ -130,7 +129,7 @@ describe("Missing field values", () => {
     const response = await agent
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
+      .set('cookie', jwtProper)
       .send(body)
       .expect("Content-Type", /json/)
       .expect(401);
@@ -146,7 +145,7 @@ describe("Unsuccessful API queries", () => {
     const response = await agent
       .get('/badId')
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
+      .set('cookie', jwtProper)
       .expect("Content-Type", /json/)
       .expect(401);
 
@@ -156,26 +155,26 @@ describe("Unsuccessful API queries", () => {
   });
 });
 
-// describe("GET Requests", () => {
-//   const agent = request.agent(app);
-//   it("Request Event via Title: Event does not exist", async () => {
-//     const queryObject = {
-//       title: "slkdjflksoweiurilsdkf"
-//     }
-//     const queryString = queryToURLEncoded(queryObject);
-//     const response = await agent
-//       .get(queryString)
-//       .set('user-agent', 'JestSupertest/0.0')
-//       .set('Cookie', jwtProper)
-//       .expect("Content-Type", /json/)
-//       .expect(200);
-//
-//     const parsedResponse = JSON.parse(response.text);
-//     expect(parsedResponse.message).toBe("No Events Found");
-//     expect(parsedResponse.success).toBeTruthy();
-//     expect(parsedResponse.data).toBeNull();
-//   });
-// });
+describe("GET Requests", () => {
+  const agent = request.agent(app);
+  it("Request Event via Title: Event does not exist", async () => {
+    const queryObject = {
+      title: "slkdjflksoweiurilsdkf"
+    }
+    const queryString = queryToURLEncoded(queryObject);
+    const response = await agent
+      .get(queryString)
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('cookie', jwtProper)
+      .expect("Content-Type", /json/)
+      .expect(200);
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.message).toBe("No Events Found");
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeNull();
+  });
+});
 
 describe("Successful API requests", () => {
   const agent = request.agent(app);
@@ -184,7 +183,7 @@ describe("Successful API requests", () => {
     const response = await agent
       .post('/')
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
+      .set('cookie', jwtProper)
       .send(body)
       .expect("Content-Type", /json/)
       .expect(200);
@@ -195,39 +194,39 @@ describe("Successful API requests", () => {
     eventIdOfEventToBeDeleted = parsedResponse.data.id;
   });
 
-  // it("Successful Event Detail fetch", async () => {
-  //   const response = await agent
-  //     .get('/1')
-  //     .set('user-agent', 'JestSupertest/0.0')
-  //     .set('Cookie', jwtProper)
-  //     .expect("Content-Type", /json/)
-  //     .expect(200);
-  //
-  //   const parsedResponse = JSON.parse(response.text);
-  //   expect(parsedResponse.message).toBe("Event: Detail for eventId: 1");
-  //   expect(parsedResponse.success).toBeTruthy();
-  // });
-  //
-  // it("Multiple query parameters", async () => {
-  //   const query = {
-  //     title: "gender",
-  //     description: "clown",
-  //     location: "line",
-  //   }
-  //   const queryString = queryToURLEncoded(query);
-  //   const response = await agent
-  //     .get(queryString)
-  //     .set('user-agent', 'JestSupertest/0.0')
-  //     .set('Cookie', jwtProper)
-  //     .expect("Content-Type", /json/)
-  //     .expect(200);
-  //
-  //   const parsedResponse = JSON.parse(response.text);
-  //   expect(parsedResponse.success).toBeTruthy();
-  //   expect(parsedResponse.message).toMatch("Event: found 1 event(s)");
-  //   expect(parsedResponse.data[0].title).toBe("Gender Reveal");
-  //   expect(parsedResponse.data[0].description).toMatch(/clown/);
-  // });
+  it("Successful Event Detail fetch", async () => {
+    const response = await agent
+      .get('/1')
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('cookie', jwtProper)
+      .expect("Content-Type", /json/)
+      .expect(200);
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.message).toBe("Event: Detail for eventId: 1");
+    expect(parsedResponse.success).toBeTruthy();
+  });
+
+  it("Multiple query parameters", async () => {
+    const query = {
+      title: "gender",
+      description: "clown",
+      location: "line",
+    }
+    const queryString = queryToURLEncoded(query);
+    const response = await agent
+      .get(queryString)
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('cookie', jwtProper)
+      .expect("Content-Type", /json/)
+      .expect(200);
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.message).toMatch("Event: found 1 event(s)");
+    expect(parsedResponse.data[0].title).toBe("Gender Reveal");
+    expect(parsedResponse.data[0].description).toMatch(/clown/);
+  });
 });
 
 describe("DELETE Requests", () => {
@@ -236,7 +235,7 @@ describe("DELETE Requests", () => {
     const response = await agent
       .delete(`/${eventIdOfEventToBeDeleted}`)
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
+      .set('cookie', jwtProper)
       .expect("Content-Type", /json/)
       .expect(200)
 
@@ -249,7 +248,7 @@ describe("DELETE Requests", () => {
     const response = await agent
       .delete('/what')
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
+      .set('cookie', jwtProper)
       .expect("Content-Type", /json/)
       .expect(400)
 
@@ -266,7 +265,7 @@ describe("PUT Requests", () => {
     const response = await agent
       .get('/1')
       .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
+      .set('cookie', jwtProper)
       .expect('Content-Type', /json/)
       .expect(200)
 
@@ -277,114 +276,133 @@ describe("PUT Requests", () => {
     eventObject = parsedResponse.data;
   });
 
-  it("Nonexistent onwer ID", async () => {
-    const localEventObject: any = { ...eventObject };
-    const path = localEventObject.id;
-    localEventObject.ownerId = "";
-    const response = await agent
-      .put(`/${path}`)
-      .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
-      .send(localEventObject)
-      .expect('Content-Type', /json/)
-      .expect(400)
-
-    const parsedResponse = JSON.parse(response.text);
-    expect(parsedResponse.success).toBeFalsy();
-    expect(parsedResponse.message).toMatch(/Event: Bad PUT request: owner Id/);
-    expect(parsedResponse.data).toBeNull();
-  });
-
-  it("Empty Title", async () => {
-    const localEventObject: any = { ...eventObject };
-    const path = localEventObject.id;
-    localEventObject.title = "";
-    const response = await agent
-      .put(`/${path}`)
-      .set('user-agent', 'JestSupertest/0.0')
-      .set('Cookie', jwtProper)
-      .send(localEventObject)
-      .expect('Content-Type', /json/)
-      .expect(400)
-
-    const parsedResponse = JSON.parse(response.text);
-    expect(parsedResponse.success).toBeFalsy();
-    expect(parsedResponse.message).toMatch(/Event: Bad PUT request: title/);
-    expect(parsedResponse.data).toBeNull();
-  });
-
-  // it("Conflicting eventID", async () => {
+  // it("Nonexistent onwer ID", async () => {
   //   const localEventObject: any = { ...eventObject };
   //   const path = localEventObject.id;
+  //   localEventObject.ownerId = "";
+  //   const response = await agent
+  //     .put(`/${path}`)
+  //     .set('user-agent', 'JestSupertest/0.0')
+  //     .set('cookie', jwtProper)
+  //     .send(localEventObject)
+  //     .expect('Content-Type', /json/)
+  //     .expect(400)
+  //
+  //   const parsedResponse = JSON.parse(response.text);
+  //   expect(parsedResponse.success).toBeFalsy();
+  //   expect(parsedResponse.message).toMatch(/Event: Bad PUT request: owner ID/);
+  //   expect(parsedResponse.data).toBeNull();
+  // });
+  //
+  // it("Empty Title", async () => {
+  //   const localEventObject: any = { ...eventObject };
+  //   const path = localEventObject.id;
+  //   localEventObject.title = "";
+  //   const response = await agent
+  //     .put(`/${path}`)
+  //     .set('user-agent', 'JestSupertest/0.0')
+  //     .set('cookie', jwtProper)
+  //     .send(localEventObject)
+  //     .expect('Content-Type', /json/)
+  //     .expect(400)
+  //
+  //   const parsedResponse = JSON.parse(response.text);
+  //   expect(parsedResponse.success).toBeFalsy();
+  //   expect(parsedResponse.message).toMatch(/Event: Bad PUT request: title/);
+  //   expect(parsedResponse.data).toBeNull();
+  // });
+  //
+  // it("Event ids do not match", async () => {
+  //   const localEventObject: any = { ...eventObject };
   //   localEventObject.id = "2";
   //   const response = await agent
-  //     .put(`/${path}`)
+  //     .put(`/badEventId`)
   //     .set('user-agent', 'JestSupertest/0.0')
-  //     .set('Cookie', jwtProper)
+  //     .set('cookie', jwtProper)
   //     .send(localEventObject)
   //     .expect('Content-Type', /json/)
   //     .expect(400)
   //
   //   const parsedResponse = JSON.parse(response.text);
   //   expect(parsedResponse.success).toBeFalsy();
-  //   expect(parsedResponse.message).toMatch(/Event: Bad PUT request: id/);
-  //   expect(parsedResponse.data).toBeNull();
-  // });
-  //
-  // it("Empty Event Id", async () => {
-  //   const localEventObject: any = { ...eventObject };
-  //   localEventObject.id = "";
-  //   const response = await agent
-  //     .put('/1')
-  //     .set('user-agent', 'JestSupertest/0.0')
-  //     .set('Cookie', jwtProper)
-  //     .send(localEventObject)
-  //     .expect('Content-Type', /json/)
-  //     .expect(400)
-  //
-  //   const parsedResponse = JSON.parse(response.text);
-  //   expect(parsedResponse.success).toBeFalsy();
-  //   expect(parsedResponse.message).toMatch(/Event: Bad PUT request: id/);
+  //   expect(parsedResponse.message).toMatch(/Event: Bad PUT request: ID/);
   //   expect(parsedResponse.data).toBeNull();
   // });
 
-  // it("Successful change", async () => {
-  //   const localEventObject: any = { ...eventObject };
-  //   const path = localEventObject.id;
-  //   let title = localEventObject.title.split(" ");
-  //   title[title.length - 1] = title[title.length - 1] * 1 + 1;
-  //   localEventObject.title = title.join(" ");
-  //   const response = await agent
-  //     .put(`/${path}`)
-  //     .set('user-agent', 'JestSupertest/0.0')
-  //     .set('Cookie', jwtProper)
-  //     .send(localEventObject)
-  //     .expect('Content-Type', /json/)
-  //     .expect(200)
-  //
-  //   const parsedResponse = JSON.parse(response.text);
-  //   expect(parsedResponse.success).toBeTruthy();
-  //   expect(parsedResponse.message).toMatch(/Event: Change Successful/);
-  //   expect(parsedResponse.data).not.toBeNull();
-  // });
+  it("User id & event.ownerId do not match", async () => {
+    const localAgent = request.agent(app);
+    const localEventObject: any = { ...eventObject };
+    localEventObject.ownerId = "noMatchHere!";
+    const response = await localAgent
+      .put(`/1`)
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('cookie', jwtIdSetToBottle)
+      .send(localEventObject)
+      .expect('Content-Type', /json/)
+      .expect(401)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeFalsy();
+    expect(parsedResponse.message).toMatch(/Event: Bad PUT request: owner ID/);
+    expect(parsedResponse.data).toBeNull();
+  });
+
+  it("Empty Event Id", async () => {
+    const localEventObject: any = { ...eventObject };
+    localEventObject.id = "";
+    const response = await agent
+      .put('/1')
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('cookie', jwtProper)
+      .send(localEventObject)
+      .expect('Content-Type', /json/)
+      .expect(400)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeFalsy();
+    expect(parsedResponse.message).toMatch(/Event: Bad PUT request: ID/);
+    expect(parsedResponse.data).toBeNull();
+  });
+
+  it("Successful change", async () => {
+    const localEventObject: any = { ...eventObject };
+    const path = localEventObject.id;
+    let title = localEventObject.title.split(" ");
+    title[title.length - 1] = title[title.length - 1] * 1 + 1;
+    localEventObject.title = title.join(" ");
+    const response = await agent
+      .put(`/${path}`)
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('cookie', jwtProper)
+      .send(localEventObject)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.message).toMatch(/Event: Change Successful/);
+    console.log(parsedResponse);
+    expect(parsedResponse.data.title).toMatch(`${localEventObject.title}`);
+    expect(parsedResponse.data).not.toBeNull();
+  });
 });
 
-// describe("SQL Injection", () => {
-//   const agent = request.agent(app);
-//   it("Inject a SELECT query", async () => {
-//     const query = {
-//       title: "SELECT * FROM Events",
-//     }
-//     const queryString = queryToURLEncoded(query);
-//     const response = await agent
-//       .get(queryString)
-//       .set('user-agent', 'JestSupertest/0.0')
-//       .set('Cookie', jwtProper)
-//
-//     const parsedResponse = JSON.parse(response.text);
-//     expect(parsedResponse.data).toBeNull();
-//   });
-// });
+describe("SQL Injection", () => {
+  const agent = request.agent(app);
+  it("Inject a SELECT query", async () => {
+    const query = {
+      title: "SELECT * FROM Events",
+    }
+    const queryString = queryToURLEncoded(query);
+    const response = await agent
+      .get(queryString)
+      .set('user-agent', 'JestSupertest/0.0')
+      .set('cookie', jwtProper)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.data).toBeNull();
+  });
+});
 
 // Stuff to make my life easier?
 // Maybe?

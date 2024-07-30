@@ -1,5 +1,5 @@
 // Import Modules
-import { Request, Response, NextFunction, query } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ResponseJSON } from '../../types/custom/Responses';
 import { Op } from 'sequelize';
 import { body, validationResult } from 'express-validator';
@@ -10,7 +10,6 @@ import { Event } from '../models/Event';
 // Import other stuff
 import { eventBodyValidator } from '../functions/eventBodyValidator';
 import { fuzzifyQuery } from '../functions/fuzzifyQuery';
-import { error } from 'console';
 
 // Event Controller
 export const eventController: any = {};
@@ -126,8 +125,8 @@ eventController.post = async (req: Request, res: Response, next: NextFunction) =
 }
 
 eventController.put = [
-  body('id').notEmpty().escape().withMessage('Event: Bad PUT request: id'),
-  body('ownerId').trim().notEmpty().escape().withMessage('Event: Bad PUT request: owner Id'),
+  body('id').notEmpty().escape().withMessage('Event: Bad PUT request: ID'),
+  body('ownerId').trim().notEmpty().escape().withMessage('Event: Bad PUT request: owner ID'),
   body('title').trim().notEmpty().escape().withMessage('Event: Bad PUT request: title'),
   body('description').trim().notEmpty().escape().withMessage('Event: Bad PUT request: description'),
   body('location').trim().notEmpty().escape().withMessage('Event: Bad PUT request: location'),
@@ -136,30 +135,46 @@ eventController.put = [
 
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let requestedEventId = req.params.id;
       const errorResult = validationResult(req);
       if (!errorResult.isEmpty()) {
-        console.log(req.body);
         req.error = 400;
         throw new Error(errorResult.array()[0].msg);
       }
 
-      const query = await Event.findOne({ where: { id: requestedEventId } });
-      if (query == null) {
-        console.log("Could not find event via id");
+      let requestedEventId = req.params.id;
+      let idFromToken = req.tokenPayload.id;
+      if (requestedEventId != req.body.id) {
+        req.error = 400;
+        throw new Error("Event: Bad PUT request: ID")
+      }
+
+      const queryResult = await Event.findOne({ where: { id: requestedEventId } });
+      if (queryResult == null) {
         req.error = 400;
         throw new Error('Event: Could not find event');
       }
 
+      // Compare user's id and event.ownerId here
+      console.log("id from token", idFromToken);
+      console.log("id from DB", queryResult.dataValues.id);
+
+      if (queryResult.dataValues.ownerId != idFromToken) {
+        throw new Error('Event: Bad PUT request: owner ID');
+      }
+
+      const valuesToBeUpdated = { ...req.body };
+      delete valuesToBeUpdated.id;
+      delete valuesToBeUpdated.createdAt;
+      delete valuesToBeUpdated.updatedAt;
       await Event.update(
-        { ...req.body },
+        { ...valuesToBeUpdated },
         { where: { id: req.body.id } }
       );
 
       const response: ResponseJSON = {
         success: true,
         message: "Event: Change Successful",
-        data: {}
+        data: { ...valuesToBeUpdated }
       }
       req.response = response;
       next()

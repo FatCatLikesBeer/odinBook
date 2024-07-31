@@ -4,6 +4,7 @@ import { postController } from '../controllers/postController';
 export const postRouter = Router();
 
 postRouter.get('/', postController.get);
+postRouter.get('/:id', postController.detail);
 postRouter.post('/', postController.post);
-postRouter.put('/', postController.put);
-postRouter.delete('/', postController.delete);
+postRouter.put('/:id', postController.put);
+postRouter.delete('/:id', postController.delete);

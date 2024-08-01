@@ -1,0 +1,2 @@
+export const jwtProper = "Bearer=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyQWdlbnQiOiJKZXN0U3VwZXJ0ZXN0LzAuMCIsImlkIjoiMSIsImlhdCI6MTUxNjIzOTAyMn0.z5VDf_c0XOD9hvvsypqlyCqn1_NYVXHRbCb3sIQcc0Q";
+export const userAgent = 'JestSupertest/0.0';

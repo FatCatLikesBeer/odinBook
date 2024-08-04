@@ -379,12 +379,12 @@ describe("PUT requests", () => {
       title: "Changed Title 1"
     }
     const response = await agent
-      .put(textPostId)
+      .put(`/${textPostId}`)
       .send(body)
       .expect('Content-Type', /json/)
       .expect(200);
 
-    const parsedResponse = JSON.parse(response);
+    const parsedResponse = JSON.parse(response.text);
     expect(parsedResponse.success).toBeTruthy();
     expect(parsedResponse.data).toBeDefined();
     expect(parsedResponse.message).toMatch(/Post edited successfully/);
@@ -395,12 +395,12 @@ describe("PUT requests", () => {
       body: "Changed description 1"
     }
     const response = await agent
-      .put(textPostId)
+      .put(`/${textPostId}`)
       .send(body)
       .expect('Content-Type', /json/)
       .expect(200);
 
-    const parsedResponse = JSON.parse(response);
+    const parsedResponse = JSON.parse(response.text);
     expect(parsedResponse.success).toBeTruthy();
     expect(parsedResponse.data).toBeDefined();
     expect(parsedResponse.message).toMatch(/Post edited successfully/);
@@ -411,12 +411,12 @@ describe("PUT requests", () => {
       title: "Changed description 1"
     }
     const response = await agent
-      .put(imagePostId)
+      .put(`/${imagePostId}`)
       .send(body)
       .expect('Content-Type', /json/)
       .expect(200);
 
-    const parsedResponse = JSON.parse(response);
+    const parsedResponse = JSON.parse(response.text);
     expect(parsedResponse.success).toBeTruthy();
     expect(parsedResponse.data).toBeDefined();
     expect(parsedResponse.message).toMatch(/Post edited successfully/);
@@ -430,12 +430,12 @@ describe("PUT requests", () => {
       body: changes
     }
     const response = await agent
-      .put(imagePostId)
+      .put(`/${imagePostId}`)
       .send(body)
       .expect('Content-Type', /json/)
       .expect(200);
 
-    const parsedResponse = JSON.parse(response);
+    const parsedResponse = JSON.parse(response.text);
     expect(parsedResponse.success).toBeTruthy();
     expect(parsedResponse.data).toBeDefined();
     expect(parsedResponse.message).toMatch(/Post edited successfully/);
@@ -446,12 +446,12 @@ describe("PUT requests", () => {
       title: 'Changes to link\'s title',
     }
     const response = await agent
-      .put(linkPostId)
+      .put(`/${linkPostId}`)
       .send(body)
       .expect('Content-Type', /json/)
       .expect(400);
 
-    const parsedResponse = JSON.parse(response);
+    const parsedResponse = JSON.parse(response.text);
     expect(parsedResponse.success).toBeFalsy();
     expect(parsedResponse.data).toBeNull();
     expect(parsedResponse.message).toMatch(/Error: can not edit link posts/);
@@ -462,12 +462,12 @@ describe("PUT requests", () => {
       body: 'Changes to link\'s title',
     }
     const response = await agent
-      .put(linkPostId)
+      .put(`/${linkPostId}`)
       .send(body)
       .expect('Content-Type', /json/)
       .expect(400);
 
-    const parsedResponse = JSON.parse(response);
+    const parsedResponse = JSON.parse(response.text);
     expect(parsedResponse.success).toBeFalsy();
     expect(parsedResponse.data).toBeNull();
     expect(parsedResponse.message).toMatch(/Error: can not edit link posts/);
@@ -487,10 +487,53 @@ describe("DELETE requests", () => {
     expect(parsedResponse.success).toBeTruthy();
   });
 
-  it("DELETE nonexistent post", async () => { });
-  it("DELETE existing text post", async () => { });
-  it("DELETE existing image post", async () => { });
-  it("DELETE existing link post", async () => { });
+  it("DELETE nonexistent post", async () => {
+    const response = await agent
+      .delete('/01')
+      .expect('Content-Type', /json/)
+      .expect(400)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeFalsy();
+    expect(parsedResponse.data).toBeNull();
+    expect(parsedResponse.message).toMatch(/Error: Post not found/);
+  });
+
+  it("DELETE existing text post", async () => {
+    const response = await agent
+      .delete(`/${textPostId}`)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeNull();
+    expect(parsedResponse.message).toMatch(/Post successfully deleted/);
+  });
+
+  it("DELETE existing image post", async () => {
+    const response = await agent
+      .delete(`/${imagePostId}`)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeNull();
+    expect(parsedResponse.message).toMatch(/Post successfully deleted/);
+  });
+
+  it("DELETE existing link post", async () => {
+    const response = await agent
+      .delete(`/{linkPostId}`)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeNull();
+    expect(parsedResponse.message).toMatch(/Post successfully deleted/);
+  });
 });
 
 // 1) Create a post constructor class

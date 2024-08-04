@@ -374,12 +374,104 @@ describe("PUT requests", () => {
     expect(parsedResponse.success).toBeTruthy();
   });
 
-  it("PUT changes to a text post's title", async () => { });
-  it("PUT changes to a text post's description", async () => { });
-  it("PUT changes to a image post's title", async () => { });
-  it("PUT changes to a image post's description/JSON", async () => { });
-  it("PUT changes to a link post's description", async () => { }); // Links can not be edited
-  it("PUT changes to a link post's JSON", async () => { }); // Links can not be edited
+  it("PUT changes to a text post's title", async () => {
+    const body = {
+      title: "Changed Title 1"
+    }
+    const response = await agent
+      .put(textPostId)
+      .send(body)
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    const parsedResponse = JSON.parse(response);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeDefined();
+    expect(parsedResponse.message).toMatch(/Post edited successfully/);
+  });
+
+  it("PUT changes to a text post's description", async () => {
+    const body = {
+      body: "Changed description 1"
+    }
+    const response = await agent
+      .put(textPostId)
+      .send(body)
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    const parsedResponse = JSON.parse(response);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeDefined();
+    expect(parsedResponse.message).toMatch(/Post edited successfully/);
+  });
+
+  it("PUT changes to a image post's title", async () => {
+    const body = {
+      title: "Changed description 1"
+    }
+    const response = await agent
+      .put(imagePostId)
+      .send(body)
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    const parsedResponse = JSON.parse(response);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeDefined();
+    expect(parsedResponse.message).toMatch(/Post edited successfully/);
+  });
+
+  it("PUT changes to a image post's description/JSON", async () => {
+    const changes = {
+      iamges: ['/images/mesmersFantasy/10', '/images/mesmersFantasy/11', '/images/mesmersFantasy/12'],
+    }
+    const body = {
+      body: changes
+    }
+    const response = await agent
+      .put(imagePostId)
+      .send(body)
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    const parsedResponse = JSON.parse(response);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeDefined();
+    expect(parsedResponse.message).toMatch(/Post edited successfully/);
+  });
+
+  it("PUT changes to a link post's title", async () => { // Links can not be edited
+    const body = {
+      title: 'Changes to link\'s title',
+    }
+    const response = await agent
+      .put(linkPostId)
+      .send(body)
+      .expect('Content-Type', /json/)
+      .expect(400);
+
+    const parsedResponse = JSON.parse(response);
+    expect(parsedResponse.success).toBeFalsy();
+    expect(parsedResponse.data).toBeNull();
+    expect(parsedResponse.message).toMatch(/Error: can not edit link posts/);
+  });
+
+  it("PUT changes to a link post's JSON", async () => { // Links can not be edited
+    const body = {
+      body: 'Changes to link\'s title',
+    }
+    const response = await agent
+      .put(linkPostId)
+      .send(body)
+      .expect('Content-Type', /json/)
+      .expect(400);
+
+    const parsedResponse = JSON.parse(response);
+    expect(parsedResponse.success).toBeFalsy();
+    expect(parsedResponse.data).toBeNull();
+    expect(parsedResponse.message).toMatch(/Error: can not edit link posts/);
+  });
 });
 
 // DELETE Requests
@@ -396,7 +488,9 @@ describe("DELETE requests", () => {
   });
 
   it("DELETE nonexistent post", async () => { });
-  it("DELETE existing post", async () => { });
+  it("DELETE existing text post", async () => { });
+  it("DELETE existing image post", async () => { });
+  it("DELETE existing link post", async () => { });
 });
 
 // 1) Create a post constructor class

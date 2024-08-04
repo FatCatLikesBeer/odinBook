@@ -9,7 +9,7 @@ import { browserChecker } from '../src/middleware/browserChecker';
 import { sendPayload } from '../src/middleware/sendPayload';
 import sequelize from '../src/models/SequelizeConnection';
 import { jwtProper, userAgent } from './variables';
-import { getJSDocEnumTag } from 'typescript';
+import { queryToURLEncoded } from './functions/queryToURLEncoded';
 
 const app = express();
 app.use(cookieParser());
@@ -276,10 +276,89 @@ describe("GET requests", () => {
     expect(parsedResponse.success).toBeTruthy();
   });
 
-  it("GET text posts with title query", async () => { });
-  it("GET text posts with description query", async () => { });
-  it("GET link posts with title query", async () => { });
-  it("GET image posts with title query", async () => { });
+  it("GET text posts with title query", async () => {
+    const query = { title: "title" }
+    const request = queryToURLEncoded(query);
+    const response = await agent
+      .get(request)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    let parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.message).toMatch(/Successful GET request/);
+    expect(parsedResponse.data).toBeDefined();
+  });
+
+  it("GET text posts with description query", async () => {
+    const query = { description: "body" }
+    const request = queryToURLEncoded(query);
+    const response = await agent
+      .get(request)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    let parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.message).toMatch(/Successful GET request/);
+    expect(parsedResponse.data).toBeDefined();
+  });
+
+  it("GET link posts with title query", async () => {
+    const query = { title: "title", type: "link" }
+    const request = queryToURLEncoded(query);
+    const response = await agent
+      .get(request)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    let parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.message).toMatch(/Successful GET request/);
+    expect(parsedResponse.data).toBeDefined();
+  });
+
+  it("GET link posts with description query", async () => {
+    const query = { description: "body", type: "link" }
+    const request = queryToURLEncoded(query);
+    const response = await agent
+      .get(request)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    let parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.message).toMatch(/Successful GET request/);
+    expect(parsedResponse.data).toBeDefined();
+  });
+
+  it("GET image posts with title query", async () => {
+    const query = { title: "title", type: "image" }
+    const request = queryToURLEncoded(query);
+    const response = await agent
+      .get(request)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    let parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.message).toMatch(/Successful GET request/);
+    expect(parsedResponse.data).toBeDefined();
+  });
+
+  it("GET image posts with description query", async () => {
+    const query = { description: "body", type: "image" }
+    const request = queryToURLEncoded(query);
+    const response = await agent
+      .get(request)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    let parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.message).toMatch(/Successful GET request/);
+    expect(parsedResponse.data).toBeDefined();
+  });
 });
 
 // PUT Requests

@@ -9,6 +9,7 @@ import { browserChecker } from '../src/middleware/browserChecker';
 import { sendPayload } from '../src/middleware/sendPayload';
 import sequelize from '../src/models/SequelizeConnection';
 import { jwtProper, userAgent } from './variables';
+import { getJSDocEnumTag } from 'typescript';
 
 const app = express();
 app.use(cookieParser());
@@ -39,6 +40,7 @@ describe("POST requests", () => {
 
     let parsedResponse = JSON.parse(response.text);
     expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeNull();
   });
 
   it("POST text without title", async () => {
@@ -50,9 +52,9 @@ describe("POST requests", () => {
       .expect(400)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeFalsy();
     expect(parsedResponse.message).toMatch(/Error: Invalid post title/);
+    expect(parsedResponse.data).toBeNull();
   });
 
   it("POST text without description", async () => {
@@ -64,9 +66,9 @@ describe("POST requests", () => {
       .expect(400)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeFalsy();
     expect(parsedResponse.message).toMatch(/Error: Invalid post body/);
+    expect(parsedResponse.data).toBeNull();
   });
 
   it("POST text without title & description", async () => {
@@ -78,9 +80,9 @@ describe("POST requests", () => {
       .expect(400)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeFalsy();
     expect(parsedResponse.message).toMatch(/Error: Invalid post title/);
+    expect(parsedResponse.data).toBeNull();
   });
 
   it("POST text without owner id", async () => {
@@ -92,9 +94,9 @@ describe("POST requests", () => {
       .expect(400)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeFalsy();
     expect(parsedResponse.message).toMatch(/Error: Owner Id Error/);
+    expect(parsedResponse.data).toBeNull();
   });
 
   it("POST link without title", async () => {
@@ -106,9 +108,9 @@ describe("POST requests", () => {
       .expect(400)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeFalsy();
     expect(parsedResponse.message).toMatch(/Error: Invalid post title/);
+    expect(parsedResponse.data).toBeNull();
   });
 
   it("POST link without body/link/JSON", async () => {
@@ -120,9 +122,9 @@ describe("POST requests", () => {
       .expect(400)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeFalsy();
     expect(parsedResponse.message).toMatch(/Error: Invalid post body/);
+    expect(parsedResponse.data).toBeNull();
   });
 
   it("POST image without title", async () => {
@@ -134,9 +136,9 @@ describe("POST requests", () => {
       .expect(400)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeFalsy();
     expect(parsedResponse.message).toMatch(/Error: Invalid post title/);
+    expect(parsedResponse.data).toBeNull();
   });
 
   it("POST image without description/JSON", async () => {
@@ -148,9 +150,9 @@ describe("POST requests", () => {
       .expect(400)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeFalsy();
     expect(parsedResponse.message).toMatch(/Error: Invalid post content/);
+    expect(parsedResponse.data).toBeNull();
   });
 
   it("Successful text POST", async () => {
@@ -162,9 +164,10 @@ describe("POST requests", () => {
       .expect(200)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeTruthy();
     expect(parsedResponse.message).toMatch(/Post submitted!/);
+    expect(parsedResponse.data).toBeDefined();
+    textPostId = parsedResponse.data.id;
   });
 
   it("Successful link POST", async () => {
@@ -176,9 +179,10 @@ describe("POST requests", () => {
       .expect(200)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeTruthy();
     expect(parsedResponse.message).toMatch(/Link Submitted!/);
+    expect(parsedResponse.data).toBeDefined();
+    linkPostId = parsedResponse.data.id;
   });
 
   it("Successful image POST", async () => {
@@ -190,9 +194,10 @@ describe("POST requests", () => {
       .expect(200)
 
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse);
     expect(parsedResponse.success).toBeTruthy();
     expect(parsedResponse.message).toMatch(/Link Submitted!/);
+    expect(parsedResponse.data).toBeDefined();
+    imagePostId = parsedResponse.data.id;
   });
 });
 
@@ -209,10 +214,53 @@ describe("GET DETAIL requests", () => {
     expect(parsedResponse.success).toBeTruthy();
   });
 
-  it("GET nonexistent post", async () => { });
-  it("Successful GET text post", async () => { });
-  it("Successful GET link post", async () => { });
-  it("Successful GET image post", async () => { });
+  it("GET nonexistent post", async () => {
+    let response = await agent
+      .get('/01')
+      .expect('Content-Type', /json/)
+      .expect(400)
+
+    let parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeFalsy();
+    expect(parsedResponse.data).toBeNull();
+    expect(parsedResponse.message).toMatch(/Error: Bad post id/);
+  });
+
+  it("Successful GET text post", async () => {
+    let response = await agent
+      .get(`/${textPostId}`)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    let parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeDefined();
+    expect(parsedResponse.message).toMatch(/Successful GET request/);
+  });
+
+  it("Successful GET link post", async () => {
+    let response = await agent
+      .get(`/${linkPostId}`)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    let parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeDefined();
+    expect(parsedResponse.message).toMatch(/Successful GET request/);
+  });
+
+  it("Successful GET image post", async () => {
+    let response = await agent
+      .get(`/${imagePostId}`)
+      .expect('Content-Type', /json/)
+      .expect(200)
+
+    let parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.success).toBeTruthy();
+    expect(parsedResponse.data).toBeDefined();
+    expect(parsedResponse.message).toMatch(/Successful GET request/);
+  });
 });
 
 // GET Requests
